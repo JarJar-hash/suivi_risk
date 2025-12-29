@@ -1,41 +1,77 @@
 /*************************************************
- * PHASE 1 — Chargement Excel
+ * PHASE 1 — Chargement CSV sans librairie
  *************************************************/
+
 let raw_data = [];
-let filter_data = [];
-let structuredData = {};
+let headers = [];
 
 const files = [
-    'data/suivi_du_risque_football.xlsx',
-    'data/suivi_du_risque_basket.xlsx'
+    'data/suivi_du_risque_1.csv',
 ];
 
-async function loadExcelFiles() {
-    for (const file of files) {
-        if (!file.includes('suivi_du_risque')) continue;
+const riskFiles = files.filter(f => f.includes('suivi_du_risque'));
 
-        const res = await fetch(file);
-        const buffer = await res.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        rows.shift(); // supprimer en-tête
-
-        raw_data.push(...rows);
+async function loadAllRiskCSVs() {
+    for (const file of riskFiles) {
+        try {
+            const res = await fetch(`data/${file}`);
+            const text = await res.text();
+            parseAndAppendCSV(text);
+        } catch (err) {
+            console.error(`Erreur chargement CSV ${file}:`, err);
+        }
     }
 
-    applyFilter();
+    console.log("RAW DATA:", raw_data);
+}
+
+/*************************************************
+ * Parser CSV simple
+ *************************************************/
+function parseAndAppendCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+
+    // 1. Récupérer en-tête une seule fois
+    if (headers.length === 0) {
+        headers = lines.shift().split(';').map(h => h.trim());
+    } else {
+        lines.shift(); // ignorer en-tête des autres fichiers
+    }
+
+    // 2. Parser lignes
+    lines.forEach(line => {
+        if (!line.trim()) return;
+
+        const values = line.split(';').map(v => v.trim());
+        raw_data.push(values);
+    });
 }
 
 /*************************************************
  * PHASE 2 — Filtrage
  *************************************************/
+
+/**
+ * Divise deux nombres et retourne un résultat arrondi
+ * @param {number} numerator - Numérateur
+ * @param {number} denominator - Dénominateur
+ * @param {number} decimals - Nombre de chiffres après la virgule
+ * @returns {number} - Résultat de la division ou 0 si numérateur ou dénominateur est 0
+ */
+
+function safeDivide(numerator, denominator, decimals = 2) {
+    if (!numerator || !denominator) return 0;
+    const result = numerator / denominator;
+    return parseFloat(result.toFixed(decimals));
+}
+
 function applyFilter() {
+    
     filter_data = raw_data.filter(row => {
-        const col10 = Number(row[9]);
-        const col5 = Number(row[4]);
-        return col10 > 100 && col5 > 2;
+        const odd = Number(row[7]);
+        const ca = Number(row[8]);
+        const ca_single = safeDivide(parseFloat(row[14]), 100);
+        return ca >= 7000 && odd >= 3 && ca_single >= 0.3 ;
     });
 
     structuredData = buildStructure(filter_data);
@@ -57,8 +93,8 @@ function buildStructure(data) {
 
         result[sport][competition].push({
             event: row[2],
-            value10: row[9],
-            value5: row[4]
+            mkt: row[3],
+            prono: row[4]
         });
     });
 
@@ -115,7 +151,7 @@ function renderEvents(sport, competition) {
         card.className = 'card';
         card.innerHTML = `
             <h2>${e.event}</h2>
-            <small>Col10: ${e.value10} | Col5: ${e.value5}</small>
+            <small>Market: ${e.mkt} | Prono: ${e.prono}</small>
         `;
         app.appendChild(card);
     });
@@ -124,4 +160,4 @@ function renderEvents(sport, competition) {
 /*************************************************
  * INIT
  *************************************************/
-loadExcelFiles();
+loadAllRiskCSVs();
