@@ -72,12 +72,22 @@ function safeDivide(numerator, denominator, decimals = 2) {
     return parseFloat(result.toFixed(decimals));
 }
 
+/**
+ * Supprime espaces + %
+ * @param {any} content - Contenu variable
+ * @returns {number} - Résultat de la transformation
+ */
+
+function CleanNumber(content) {
+    return Number(content.toString().replace(" ", "").replace("%", ""))
+}
+
 function applyFilter() {
     
     filter_data = raw_data.filter(row => {
-        const odd = parseFloat(row[7]);
-        const ca = Number(parseFloat(row[8]));
-        const ca_single = safeDivide(parseFloat(row[14]), 100);
+        const odd = CleanNumber(row[7]);
+        const ca = CleanNumber(row[8]);
+        const ca_single = safeDivide(CleanNumber(row[14]), 100);
         console.log("Filter Values", odd, ca, ca_single);
         return ca >= 1000 && odd >= 2;
     });
