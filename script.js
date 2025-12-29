@@ -14,7 +14,7 @@ const riskFiles = files.filter(f => f.includes('suivi_du_risque'));
 async function loadAllRiskCSVs() {
     for (const file of riskFiles) {
         try {
-            const res = await fetch(`data/${file}`);
+            const res = await fetch(file);
             const text = await res.text();
             parseAndAppendCSV(text);
         } catch (err) {
