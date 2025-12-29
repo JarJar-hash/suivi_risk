@@ -71,7 +71,7 @@ function applyFilter() {
         const odd = Number(row[7]);
         const ca = Number(row[8]);
         const ca_single = safeDivide(parseFloat(row[14]), 100);
-        return ca >= 7000 && odd >= 3 && ca_single >= 0.3 ;
+        return ca >= 1000 && odd >= 2;
     });
 
     structuredData = buildStructure(filter_data);
