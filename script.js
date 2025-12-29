@@ -68,9 +68,10 @@ function safeDivide(numerator, denominator, decimals = 2) {
 function applyFilter() {
     
     filter_data = raw_data.filter(row => {
-        const odd = Number(row[7]);
-        const ca = Number(row[8]);
+        const odd = parseFloat(row[7]);
+        const ca = Number(parseFloat(row[8]));
         const ca_single = safeDivide(parseFloat(row[14]), 100);
+        console.log("Filter Values", odd && " " && ca & " " & ca_single)
         return ca >= 1000 && odd >= 2;
     });
 
