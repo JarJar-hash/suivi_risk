@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+header {
+    padding: 16px;
+    background: #1e293b;
+    color: white;
+}
+
+#app {
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card h2 {
+    margin: 0 0 8px;
+}
+
+.card small {
+    color: #555;
+}
+
+/* Grid responsive */
+@media (min-width: 768px) {
+    #app {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+/* Back button */
+.back {
+    margin-bottom: 16px;
+    cursor: pointer;
+    color: #2563eb;
+}
