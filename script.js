@@ -176,7 +176,6 @@ function buildStructuredData() {
         const ca = CleanNumber(row[8]);
         const conc = CleanNumber(row[9]);
         const ca_single = CleanNumber(row[14]);
-        const cote = row[7]
 
         if (!structuredData[sport]) structuredData[sport] = {rows: [], children:{}};
         const sportNode = structuredData[sport];
