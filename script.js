@@ -79,7 +79,7 @@ function safeDivide(numerator, denominator, decimals = 2) {
  */
 
 function CleanNumber(content) {
-    return Number(content.toString().replace(" ", "").replace("%", ""))
+    return Number(content.toString().replace(",", ".").replace(" ", "").replace("%", ""))
 }
 
 function applyFilter() {
@@ -103,16 +103,16 @@ function buildStructure(data) {
     const result = {};
 
     data.forEach(row => {
-        const sport = row[0];
-        const competition = row[1];
+        const sport = row[1];
+        const competition = row[2];
 
         if (!result[sport]) result[sport] = {};
         if (!result[sport][competition]) result[sport][competition] = [];
 
         result[sport][competition].push({
-            event: row[2],
-            mkt: row[3],
-            prono: row[4]
+            event: row[3],
+            mkt: row[4],
+            prono: row[5]
         });
     });
 
