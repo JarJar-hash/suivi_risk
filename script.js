@@ -186,9 +186,37 @@ function buildStructure(data) {
  *************************************************/
 const app = document.getElementById('app');
 
+function computeStats(rows) {
+    let totalCA = 0;
+    let sumConcCA = 0;
+    let sumConcSingle = 0;
+
+    rows.forEach(r => {
+        const ca = CleanNumber(r[7]);
+        const conc = CleanNumber(r[8]);
+        const concSingle = safeDivide(CleanNumber(r[14]), 100);
+
+        totalCA += ca;
+        sumConcCA += conc;
+        sumConcSingle += concSingle;
+    });
+
+    const count = rows.length;
+
+    return {
+        totalCA: Math.round(totalCA),
+        concentrationCA: count ? (sumConcCA / count).toFixed(2) * 100 : 0,
+        concentrationSingle: count ? (sumConcSingle / count).toFixed(2) * 100 : 0
+    };
+}
+
+
 function renderSports() {
     app.innerHTML = '';
     Object.entries(structuredData).forEach(([sport, competitions]) => {
+
+        const rows = filter_data.filter(r => r[1] === sport);
+        const stats = computeStats(rows);
         
         let count = Object.keys(competitions).length;
         
@@ -198,7 +226,12 @@ function renderSports() {
         const label = count === 1 ? 'compétition' : 'compétitions';
         card.innerHTML = `
             <h2>${sport}</h2>
-            <small>${count} ${label}</small>
+            <small>
+                ${count} ${label} <br>
+                CA total : ${stats.totalCA} €<br>
+                Concentration CA : ${stats.concentrationCA}<br>
+                Concentration Single : ${stats.concentrationSingle}
+            </small>
         `;
 
         card.onclick = () => renderCompetitions(sport);
@@ -210,6 +243,12 @@ function renderCompetitions(sport) {
     app.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
 
     Object.entries(structuredData[sport]).forEach(([competition, events]) => {
+
+        const rows = filter_data.filter(r => 
+            r[1] === sport &&
+            r[2] == competition
+        );
+        const stats = computeStats(rows);
         
         let count = Object.keys(events).length;
 
@@ -219,7 +258,12 @@ function renderCompetitions(sport) {
         const label = count === 1 ? 'événement' : 'événements';
         card.innerHTML = `
             <h2>${competition}</h2>
-            <small>${count} ${label}</small>
+            <small>
+                ${count} ${label} <br>
+                CA total : ${stats.totalCA} €<br>
+                Concentration CA : ${stats.concentrationCA}<br>
+                Concentration Single : ${stats.concentrationSingle}
+            </small>
         `;
 
         card.onclick = () => renderEvents(sport, competition);
@@ -231,6 +275,14 @@ function renderEvents(sport, competition) {
     app.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
 
     Object.entries(structuredData[sport][competition]).forEach(([event, mkts]) => {
+
+        const rows = filter_data.filter(r => 
+            r[1] === sport &&
+            r[2] == competition &&
+            r[3] == event
+        );
+        const stats = computeStats(rows);
+        
         let count = Object.keys(mkts).length;
         const card = document.createElement('div');
         card.className = 'card';
@@ -238,7 +290,12 @@ function renderEvents(sport, competition) {
         const label = count === 1 ? 'market' : 'markets';
         card.innerHTML = `
             <h2>${event}</h2>
-            <small>${count} ${label}</small>
+            <small>
+                ${count} ${label} <br>
+                CA total : ${stats.totalCA} €<br>
+                Concentration CA : ${stats.concentrationCA}<br>
+                Concentration Single : ${stats.concentrationSingle}
+            </small>
         `;
         
         card.onclick = () => renderMarkets(sport, competition, event);
@@ -251,6 +308,14 @@ function renderMarkets(sport, competition, event) {
 
     Object.entries(structuredData[sport][competition][event]).forEach(([mkt, pronos]) => {
 
+        const rows = filter_data.filter(r => 
+            r[1] === sport &&
+            r[2] == competition &&
+            r[3] == event &&
+            r[4] == mkt
+        );
+        const stats = computeStats(rows);
+
         let count = Object.keys(pronos).length;
         
         const card = document.createElement('div');
@@ -259,7 +324,12 @@ function renderMarkets(sport, competition, event) {
         const label = count === 1 ? 'prono' : 'pronos';
         card.innerHTML = `
             <h2>${mkt}</h2>
-            <small>${count} ${label}</small>
+            <small>
+                ${count} ${label} <br>
+                CA total : ${stats.totalCA} €<br>
+                Concentration CA : ${stats.concentrationCA}<br>
+                Concentration Single : ${stats.concentrationSingle}
+            </small>
         `;
 
         card.onclick = () => renderPronos(sport, competition, event, mkt);
@@ -271,9 +341,28 @@ function renderPronos(sport, competition, event, mkt) {
     app.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
 
     structuredData[sport][competition][event][mkt].forEach(prono => {
+
+        const rows = filter_data.filter(r => 
+            r[1] === sport &&
+            r[2] == competition &&
+            r[3] == event &&
+            r[4] == mkt &&
+            r[5] == prono
+        );
+        const stats = computeStats(rows);
+        
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h2>${prono}</h2>`;
+
+        card.innerHTML = `
+            <h2>${prono}</h2>
+            <small>
+                CA total : ${stats.totalCA} €<br>
+                Concentration CA : ${stats.concentrationCA}<br>
+                Concentration Single : ${stats.concentrationSingle}
+            </small>
+        `;
+        
         app.appendChild(card);
     });
 }
