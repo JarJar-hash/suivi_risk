@@ -220,17 +220,10 @@ function buildStructuredData() {
  *************************************************/
 const app = document.getElementById('app');
 
-function heatColor(value, min = 1.5, max = 3.5) {
-    const v = Math.max(min, Math.min(max, value));
-    const ratio = (v - min) / (max - min);
-    const hue = 120 - (120 * ratio);
-    return `hsl(${hue}, 75%, 55%)`;
-}
-
-function riskLabel(value) {
-    if (value >= 3) return "⚠️ Risque élevé";
-    if (value >= 2.2) return "🟠 Vigilance";
-    return "🟢 Stable";
+function heatColor(value, min = 0, max = 100) { // ajusté selon %CA
+    const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
+    const hue = 0 + (120 * (1 - ratio)); // 0 = rouge, 120 = vert
+    return `hsl(${hue}, 90%, ${50 - ratio*20}%)`;
 }
 
 function renderNode(title, node, level, parentOnClick = null, childOnClick = null, isProno = false) {
@@ -243,13 +236,16 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
     card.style.background = `linear-gradient(135deg, rgba(255,255,255,1), ${heat}15)`;
 
     // Déterminer le label selon le niveau
-    let label = '';
-    
-    switch(level) {
-        case 0: label = node.childrenCount === 1 ? 'compétition' : 'compétitions'; break;
-        case 1: label = node.childrenCount === 1 ? 'événement' : 'événements'; break;
-        case 2: label = node.childrenCount === 1 ? 'market' : 'markets'; break;
-        case 3: label = node.childrenCount === 1 ? 'prono' : 'pronos'; break;
+    let count, label;
+    if (isProno) {
+        count = 1; 
+        label = 'prono';
+    } else {
+        count = node.children ? Object.keys(node.children).length : node.rows.length;
+        if (level === 'sport') label = count === 1 ? 'compétition' : 'compétitions';
+        else if (level === 'competition') label = count === 1 ? 'événement' : 'événements';
+        else if (level === 'event') label = count === 1 ? 'market' : 'markets';
+        else if (level === 'market') label = count === 1 ? 'prono' : 'pronos';
     }
 
     // Stats HTML
@@ -261,7 +257,7 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
             </div>
             <div class="stat-row">
                 % CA: ${node.stats.concentrationCA.toFixed(0)} | % Single: ${node.stats.concentrationSingle.toFixed(0)}
-                ${!isProno ? `<br>${node.childrenCount} ${label}` : ''}
+                ${!isProno ? `<br>${count} ${label}` : ''}
             </div>
         </div>
         <div class="ca-bar">
