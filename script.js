@@ -92,7 +92,7 @@ function applyFilter() {
         return ca >= 1000 && odd >= 2;
     });
 
-    console.log("FILTER DATA:", raw_data);
+    console.log("FILTER DATA:", filter_data);
     
     structuredData = buildStructure(filter_data);
     renderSports();
@@ -111,6 +111,9 @@ function buildStructure(data) {
         const event = row[3] || "Inconnu";
         const mkt = row[4] || "Inconnu";
         const prono = row[5] || "Inconnu";
+
+        // ignore si sport vide
+        if (!sport) return ;
 
         if (!result[sport]) result[sport] = {};
         if (!result[sport][competition]) result[sport][competition] = {};
