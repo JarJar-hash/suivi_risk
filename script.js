@@ -11,6 +11,9 @@ const files = [
 
 const riskFiles = files.filter(f => f.includes('suivi_du_risque'));
 
+let filter_data = [];
+let structuredData = {};
+
 async function loadAllRiskCSVs() {
     for (const file of riskFiles) {
         try {
@@ -24,13 +27,10 @@ async function loadAllRiskCSVs() {
 
     console.log("RAW DATA:", raw_data);
 
-    // Filtrer les données
-    const filter_data = filterRawData(raw_data);
+    // Filtrage + cascade
+    applyFilter();
 
-    // Construire et afficher la cascade
-    renderCascade(filter_data);
-}
-
+    
 /*************************************************
  * Parser CSV simple
  *************************************************/
@@ -77,7 +77,7 @@ function applyFilter() {
         const odd = parseFloat(row[7]);
         const ca = Number(parseFloat(row[8]));
         const ca_single = safeDivide(parseFloat(row[14]), 100);
-        console.log("Filter Values", odd && " " && ca & " " & ca_single)
+        console.log("Filter Values", odd, ca, ca_single);
         return ca >= 1000 && odd >= 2;
     });
 
