@@ -192,9 +192,9 @@ function computeStats(rows) {
     let sumConcSingle = 0;
 
     rows.forEach(r => {
-        const ca = CleanNumber(r[7]);
-        const conc = CleanNumber(r[8]);
-        const concSingle = safeDivide(CleanNumber(r[14]), 100);
+        const ca = CleanNumber(r[8]);
+        const conc = CleanNumber(r[9]);
+        const concSingle = CleanNumber(r[14]);
 
         totalCA += ca;
         sumConcCA += conc;
@@ -205,8 +205,8 @@ function computeStats(rows) {
 
     return {
         totalCA: Math.round(totalCA),
-        concentrationCA: count ? (sumConcCA / count).toFixed(2) * 100 : 0,
-        concentrationSingle: count ? (sumConcSingle / count).toFixed(2) * 100 : 0
+        concentrationCA: count ? (sumConcCA / count).toFixed(2) : 0,
+        concentrationSingle: count ? (sumConcSingle / count).toFixed(2) : 0
     };
 }
 
@@ -224,14 +224,19 @@ function renderSports() {
         card.className = 'card';
         
         const label = count === 1 ? 'compétition' : 'compétitions';
+
         card.innerHTML = `
             <h2>${sport}</h2>
-            <small>
-                ${count} ${label} <br>
-                CA total : ${stats.totalCA} €<br>
-                Concentration CA : ${stats.concentrationCA}<br>
-                Concentration Single : ${stats.concentrationSingle}
-            </small>
+        
+            <div class="card-count">
+                ${count} ${label}
+            </div>
+        
+            <div class="card-stats">
+                CA : ${stats.totalCA} €<br>
+                % CA : ${stats.concentrationCA}<br>
+                % CA Single : ${stats.concentrationSingle}
+            </div>
         `;
 
         card.onclick = () => renderCompetitions(sport);
@@ -256,14 +261,19 @@ function renderCompetitions(sport) {
         card.className = 'card';
 
         const label = count === 1 ? 'événement' : 'événements';
+        
         card.innerHTML = `
             <h2>${competition}</h2>
-            <small>
-                ${count} ${label} <br>
-                CA total : ${stats.totalCA} €<br>
-                Concentration CA : ${stats.concentrationCA}<br>
-                Concentration Single : ${stats.concentrationSingle}
-            </small>
+        
+            <div class="card-count">
+                ${count} ${label}
+            </div>
+        
+            <div class="card-stats">
+                CA : ${stats.totalCA} €<br>
+                % CA : ${stats.concentrationCA} %<br>
+                % CA Single : ${stats.concentrationSingle} %
+            </div>
         `;
 
         card.onclick = () => renderEvents(sport, competition);
@@ -288,16 +298,21 @@ function renderEvents(sport, competition) {
         card.className = 'card';
 
         const label = count === 1 ? 'market' : 'markets';
+
         card.innerHTML = `
             <h2>${event}</h2>
-            <small>
-                ${count} ${label} <br>
-                CA total : ${stats.totalCA} €<br>
-                Concentration CA : ${stats.concentrationCA}<br>
-                Concentration Single : ${stats.concentrationSingle}
-            </small>
-        `;
         
+            <div class="card-count">
+                ${count} ${label}
+            </div>
+        
+            <div class="card-stats">
+                CA : ${stats.totalCA} €<br>
+                % CA : ${stats.concentrationCA} %<br>
+                % CA Single : ${stats.concentrationSingle} %
+            </div>
+        `;
+
         card.onclick = () => renderMarkets(sport, competition, event);
         app.appendChild(card);
     });
@@ -322,14 +337,19 @@ function renderMarkets(sport, competition, event) {
         card.className = 'card';
 
         const label = count === 1 ? 'prono' : 'pronos';
+
         card.innerHTML = `
             <h2>${mkt}</h2>
-            <small>
-                ${count} ${label} <br>
-                CA total : ${stats.totalCA} €<br>
-                Concentration CA : ${stats.concentrationCA}<br>
-                Concentration Single : ${stats.concentrationSingle}
-            </small>
+        
+            <div class="card-count">
+                ${count} ${label}
+            </div>
+        
+            <div class="card-stats">
+                CA : ${stats.totalCA} €<br>
+                % CA : ${stats.concentrationCA} %<br>
+                % CA Single : ${stats.concentrationSingle} %
+            </div>
         `;
 
         card.onclick = () => renderPronos(sport, competition, event, mkt);
@@ -356,11 +376,12 @@ function renderPronos(sport, competition, event, mkt) {
 
         card.innerHTML = `
             <h2>${prono}</h2>
-            <small>
-                CA total : ${stats.totalCA} €<br>
-                Concentration CA : ${stats.concentrationCA}<br>
-                Concentration Single : ${stats.concentrationSingle}
-            </small>
+            
+            <div class="card-stats">
+                CA : ${stats.totalCA} €<br>
+                % CA : ${stats.concentrationCA} %<br>
+                % CA Single : ${stats.concentrationSingle} %
+            </div>
         `;
         
         app.appendChild(card);
