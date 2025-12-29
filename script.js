@@ -189,15 +189,18 @@ const app = document.getElementById('app');
 function renderSports() {
     app.innerHTML = '';
     Object.entries(structuredData).forEach(([sport, competitions]) => {
-        let count = Object.values(competitions).reduce((acc, comp) => {
-            return acc + Object.values(comp).reduce((a, ev) => {
-                return a + Object.values(ev).reduce((aa, mkts) => aa + mkts.length, 0);
-            }, 0);
-        }, 0);
-
+        
+        let count = Object.keys(competitions).length;
+        
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h2>${sport}</h2><small>${count} événements</small>`;
+        
+        const label = count === 1 ? 'compétition' : 'compétitions';
+        card.innerHTML = `
+            <h2>${sport}</h2>
+            <small>${count} ${label}</small>
+        `;
+
         card.onclick = () => renderCompetitions(sport);
         app.appendChild(card);
     });
@@ -207,13 +210,18 @@ function renderCompetitions(sport) {
     app.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
 
     Object.entries(structuredData[sport]).forEach(([competition, events]) => {
-        let count = Object.values(events).reduce((acc, mkts) => {
-            return acc + Object.values(mkts).reduce((a, mktArr) => a + mktArr.length, 0);
-        }, 0);
+        
+        let count = Object.keys(events).length;
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h2>${competition}</h2><small>${count} événements</small>`;
+
+        const label = count === 1 ? 'événement' : 'événements';
+        card.innerHTML = `
+            <h2>${competition}</h2>
+            <small>${count} ${label}</small>
+        `;
+
         card.onclick = () => renderEvents(sport, competition);
         app.appendChild(card);
     });
@@ -223,10 +231,16 @@ function renderEvents(sport, competition) {
     app.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
 
     Object.entries(structuredData[sport][competition]).forEach(([event, mkts]) => {
-        let count = Object.values(mkts).reduce((a, pArr) => a + pArr.length, 0);
+        let count = Object.keys(mkts).length;
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h2>${event}</h2><small>${count} markets</small>`;
+
+        const label = count === 1 ? 'market' : 'markets';
+        card.innerHTML = `
+            <h2>${event}</h2>
+            <small>${count} ${label}</small>
+        `;
+        
         card.onclick = () => renderMarkets(sport, competition, event);
         app.appendChild(card);
     });
@@ -236,9 +250,18 @@ function renderMarkets(sport, competition, event) {
     app.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
 
     Object.entries(structuredData[sport][competition][event]).forEach(([mkt, pronos]) => {
+
+        let count = Object.keys(pronos).length;
+        
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h2>${mkt}</h2><small>${pronos.length} pronos</small>`;
+
+        const label = count === 1 ? 'prono' : 'pronos';
+        card.innerHTML = `
+            <h2>${mkt}</h2>
+            <small>${count} ${label}</small>
+        `;
+
         card.onclick = () => renderPronos(sport, competition, event, mkt);
         app.appendChild(card);
     });
