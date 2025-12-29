@@ -30,7 +30,8 @@ async function loadAllRiskCSVs() {
     // Filtrage + cascade
     applyFilter();
 
-    
+}
+
 /*************************************************
  * Parser CSV simple
  *************************************************/
