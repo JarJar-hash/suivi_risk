@@ -18,37 +18,61 @@ header {
 
 /* Cards */
 .card {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    cursor: pointer;
-    transition: transform 0.15s;
+    background: linear-gradient(135deg, #ffffff, #f9fafb);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .card:hover {
-    transform: scale(1.02);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.12);
 }
 
 .card h2 {
-    margin: 0 0 8px;
-}
-
-.card-count {
-    margin-top: 6px;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #1f2937; /* gris foncé / accent */
+    font-size: 1.05rem;
+    margin: 0;
+    color: #111827;
 }
 
 .card-stats {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    color: #6b7280; /* gris doux */
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f1f5f9;
+    border-radius: 10px;
 }
 
-.card small {
-    color: #555;
+.stat-main {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.stat-main span {
+    color: #2563eb;
+}
+
+.stat-row {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-top: 2px;
+}
+
+.ca-bar {
+    margin-top: 10px;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ca-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width .3s ease;
 }
 
 /* Grid responsive */
