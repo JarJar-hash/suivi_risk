@@ -23,6 +23,12 @@ async function loadAllRiskCSVs() {
     }
 
     console.log("RAW DATA:", raw_data);
+
+    // Filtrer les données
+    const filter_data = filterRawData(raw_data);
+
+    // Construire et afficher la cascade
+    renderCascade(filter_data);
 }
 
 /*************************************************
@@ -161,4 +167,5 @@ function renderEvents(sport, competition) {
 /*************************************************
  * INIT
  *************************************************/
-loadAllRiskCSVs();
+// --- Lancement ---
+window.addEventListener('DOMContentLoaded', loadAllRiskCSVs);
