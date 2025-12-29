@@ -205,18 +205,37 @@ function computeStats(rows) {
 
     return {
         totalCA: Math.round(totalCA),
-        concentrationCA: count ? (sumConcCA / count).toFixed(2) : 0,
-        concentrationSingle: count ? (sumConcSingle / count).toFixed(2) : 0
+        concentrationCA: count ? (sumConcCA / count).toFixed(0) : 0,
+        concentrationSingle: count ? (sumConcSingle / count).toFixed(0) : 0,
+        caPercent: 50
     };
 }
 
+function riskLabel(value) {
+    if (value >= 3) return "⚠️ Risque élevé";
+    if (value >= 2.2) return "🟠 Vigilance";
+    return "🟢 Stable";
+}
+
+function heatColor(value, min = 1.5, max = 3.5) {
+    const v = Math.max(min, Math.min(max, value));
+    const ratio = (v - min) / (max - min);
+
+    // Vert (120) → Rouge (0)
+    const hue = 120 - (120 * ratio);
+
+    return `hsl(${hue}, 75%, 55%)`;
+}
 
 function renderSports() {
     app.innerHTML = '';
     Object.entries(structuredData).forEach(([sport, competitions]) => {
 
         const rows = filter_data.filter(r => r[1] === sport);
+        const cote = rows[0][7]
+        
         const stats = computeStats(rows);
+        const heat = heatColor(stats.concentrationCA);
         
         let count = Object.keys(competitions).length;
         
@@ -225,17 +244,33 @@ function renderSports() {
         
         const label = count === 1 ? 'compétition' : 'compétitions';
 
+        card.style.borderLeft = `8px solid ${heat}`;
+        card.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,1),
+                ${heat}15
+            )
+        `;
+
         card.innerHTML = `
             <h2>${sport}</h2>
-        
-            <div class="card-count">
-                ${count} ${label}
-            </div>
-        
+
             <div class="card-stats">
-                CA : ${stats.totalCA} €<br>
-                % CA : ${stats.concentrationCA}<br>
-                % CA Single : ${stats.concentrationSingle}
+            
+                <div class="stat-main">
+                    CA <span>${stats.totalCA} €</span>
+                    % CA Single : ${stats.concentrationSingle} %
+                </div>
+
+                <div class="stat-row">
+                    % CA : ${stats.concentrationCA} %
+                    ${count} ${label}
+                </div>
+            </div>
+
+            <div class="ca-bar">
+                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
             </div>
         `;
 
@@ -253,7 +288,10 @@ function renderCompetitions(sport) {
             r[1] === sport &&
             r[2] == competition
         );
+        const cote = rows[0][7]
+        
         const stats = computeStats(rows);
+        const heat = heatColor(stats.concentrationCA);
         
         let count = Object.keys(events).length;
 
@@ -261,18 +299,34 @@ function renderCompetitions(sport) {
         card.className = 'card';
 
         const label = count === 1 ? 'événement' : 'événements';
-        
+
+        card.style.borderLeft = `8px solid ${heat}`;
+        card.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,1),
+                ${heat}15
+            )
+        `;
+
         card.innerHTML = `
             <h2>${competition}</h2>
-        
-            <div class="card-count">
-                ${count} ${label}
-            </div>
-        
+
             <div class="card-stats">
-                CA : ${stats.totalCA} €<br>
-                % CA : ${stats.concentrationCA} %<br>
-                % CA Single : ${stats.concentrationSingle} %
+            
+                <div class="stat-main">
+                    CA <span>${stats.totalCA} €</span>
+                    % CA Single : ${stats.concentrationSingle} %
+                </div>
+
+                <div class="stat-row">
+                    % CA : ${stats.concentrationCA} %
+                    ${count} ${label}
+                </div>
+            </div>
+
+            <div class="ca-bar">
+                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
             </div>
         `;
 
@@ -291,7 +345,10 @@ function renderEvents(sport, competition) {
             r[2] == competition &&
             r[3] == event
         );
+        const cote = rows[0][7]
+        
         const stats = computeStats(rows);
+        const heat = heatColor(stats.concentrationCA);
         
         let count = Object.keys(mkts).length;
         const card = document.createElement('div');
@@ -299,17 +356,33 @@ function renderEvents(sport, competition) {
 
         const label = count === 1 ? 'market' : 'markets';
 
+        card.style.borderLeft = `8px solid ${heat}`;
+        card.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,1),
+                ${heat}15
+            )
+        `;
+
         card.innerHTML = `
             <h2>${event}</h2>
-        
-            <div class="card-count">
-                ${count} ${label}
-            </div>
-        
+
             <div class="card-stats">
-                CA : ${stats.totalCA} €<br>
-                % CA : ${stats.concentrationCA} %<br>
-                % CA Single : ${stats.concentrationSingle} %
+            
+                <div class="stat-main">
+                    CA <span>${stats.totalCA} €</span>
+                    % CA Single : ${stats.concentrationSingle} %
+                </div>
+
+                <div class="stat-row">
+                    % CA : ${stats.concentrationCA} %
+                    ${count} ${label}
+                </div>
+            </div>
+
+            <div class="ca-bar">
+                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
             </div>
         `;
 
@@ -329,7 +402,10 @@ function renderMarkets(sport, competition, event) {
             r[3] == event &&
             r[4] == mkt
         );
+        const cote = rows[0][7]
+        
         const stats = computeStats(rows);
+        const heat = heatColor(stats.concentrationCA);
 
         let count = Object.keys(pronos).length;
         
@@ -338,17 +414,33 @@ function renderMarkets(sport, competition, event) {
 
         const label = count === 1 ? 'prono' : 'pronos';
 
+        card.style.borderLeft = `8px solid ${heat}`;
+        card.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,1),
+                ${heat}15
+            )
+        `;
+
         card.innerHTML = `
             <h2>${mkt}</h2>
-        
-            <div class="card-count">
-                ${count} ${label}
-            </div>
-        
+
             <div class="card-stats">
-                CA : ${stats.totalCA} €<br>
-                % CA : ${stats.concentrationCA} %<br>
-                % CA Single : ${stats.concentrationSingle} %
+            
+                <div class="stat-main">
+                    CA <span>${stats.totalCA} €</span>
+                    % CA Single : ${stats.concentrationSingle} %
+                </div>
+
+                <div class="stat-row">
+                    % CA : ${stats.concentrationCA} %
+                    ${count} ${label}
+                </div>
+            </div>
+
+            <div class="ca-bar">
+                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
             </div>
         `;
 
@@ -369,18 +461,42 @@ function renderPronos(sport, competition, event, mkt) {
             r[4] == mkt &&
             r[5] == prono
         );
+        const cote = rows[0][7]
+        
         const stats = computeStats(rows);
+        const heat = heatColor(stats.concentrationCA);
         
         const card = document.createElement('div');
         card.className = 'card';
 
+        card.style.borderLeft = `8px solid ${heat}`;
+        card.style.background = `
+            linear-gradient(
+                135deg,
+                rgba(255,255,255,1),
+                ${heat}15
+            )
+        `;
+
         card.innerHTML = `
-            <h2>${prono}</h2>
-            
+            <h2>${mkt}</h2>
+
             <div class="card-stats">
-                CA : ${stats.totalCA} €<br>
-                % CA : ${stats.concentrationCA} %<br>
-                % CA Single : ${stats.concentrationSingle} %
+            
+                <div class="stat-main">
+                    CA <span>${stats.totalCA} €</span>
+                    Cote : ${cote}
+                </div>
+
+                <div class="stat-row">
+                    % CA Single : ${stats.concentrationSingle} %
+                    % CA : ${stats.concentrationCA} %
+                    ${count} ${label}
+                </div>
+            </div>
+
+            <div class="ca-bar">
+                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
             </div>
         `;
         
