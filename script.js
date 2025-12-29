@@ -73,7 +73,7 @@ function addCalculatedColumn(raw_data, coteColIndex) {
 
     // 2. Calculer cote calculée pour chaque groupe
     Object.values(mktGroups).forEach(group => {
-        const cotes = group.map(r => cleanNumber(r[coteColIndex]));
+        const cotes = group.map(r => CleanNumber(r[coteColIndex]));
 
         let coteCalc;
         if (group.length === 3) {
@@ -133,7 +133,7 @@ function CleanNumber(content) {
 function applyFilter() {
     
     filter_data = comp_data.filter(row => {
-        const sport = row[1]?;
+        const sport = row[1];
         const odd = CleanNumber(row[7]);
         const odd_ratio = safeDivide(row[24], odd);
         const ca = CleanNumber(row[8]);
