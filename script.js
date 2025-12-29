@@ -135,7 +135,7 @@ function applyFilter() {
     filter_data = comp_data.filter(row => {
         const sport = row[1]?;
         const odd = CleanNumber(row[7]);
-        const odd_ratio = safeDivide(row[24], odd)
+        const odd_ratio = safeDivide(row[24], odd);
         const ca = CleanNumber(row[8]);
         const ca_single = safeDivide(CleanNumber(row[14]), 100);
         
