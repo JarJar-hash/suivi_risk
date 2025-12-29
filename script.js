@@ -17,6 +17,8 @@ let filter_data = [];
 let structuredData = {};
 
 async function loadAllRiskCSVs() {
+
+    //LOAD RAW DATA
     for (const file of riskFiles) {
         try {
             const res = await fetch(file);
@@ -32,8 +34,12 @@ async function loadAllRiskCSVs() {
     // RETRAITEMENT DONNEES
     addCalculatedColumn(raw_data, 7)
 
-    // Filtrage + cascade
+    // Filtrage
     applyFilter();
+
+    // Structure + Stats
+    buildStructuredData();
+    renderSports();
 
 }
 
@@ -148,37 +154,66 @@ function applyFilter() {
     });
 
     console.log("FILTER DATA:", filter_data);
-    
-    structuredData = buildStructure(filter_data);
-    renderSports();
 }
 
 /*************************************************
  * PHASE 3 — Structuration cascade
  *************************************************/
 
-function buildStructure(data) {
-    const result = {};
+// NEW VERSION
 
-    data.forEach(row => {
-        const sport = row[1] || "Inconnu";
-        const competition = row[2] || "Inconnu";
-        const event = row[3] || "Inconnu";
-        const mkt = row[4] || "Inconnu";
-        const prono = row[5] || "Inconnu";
+function buildStructuredData() {
+    structuredData = {};
 
-        // ignore si sport vide
-        if (!sport) return ;
+    // Organiser les lignes par sport/comp/event/mkt/prono
+    filter_data.forEach(row => {
+        const sport = row[1];
+        const competition = row[2];
+        const event = row[3];
+        const mkt = row[4];
+        const prono = row[5];
+        const cote = row[7];
+        const ca = CleanNumber(row[8]);
+        const conc = CleanNumber(row[9]);
+        const ca_single = CleanNumber(row[14]);
+        const cote = row[7]
 
-        if (!result[sport]) result[sport] = {};
-        if (!result[sport][competition]) result[sport][competition] = {};
-        if (!result[sport][competition][event]) result[sport][competition][event] = {};
-        if (!result[sport][competition][event][mkt]) result[sport][competition][event][mkt] = [];
+        if (!structuredData[sport]) structuredData[sport] = {rows: [], children:{}};
+        const sportNode = structuredData[sport];
+        sportNode.rows.push({ca, conc, ca_single, cote});
 
-        result[sport][competition][event][mkt].push(prono);
+        if (!sportNode.children[competition]) sportNode.children[competition] = {rows: [], children:{}};
+        const compNode = sportNode.children[competition];
+        compNode.rows.push({ca, conc, ca_single, cote});
+
+        if (!compNode.children[event]) compNode.children[event] = {rows: [], children:{}};
+        const eventNode = compNode.children[event];
+        eventNode.rows.push({ca, conc, ca_single, cote});
+
+        if (!eventNode.children[mkt]) eventNode.children[mkt] = {rows: [], children:{}};
+        const mktNode = eventNode.children[mkt];
+        mktNode.rows.push({ca, conc, ca_single, cote});
+
+        if (!mktNode.children[prono]) mktNode.children[prono] = {rows: [], children:{}};
+        const pronoNode = mktNode.children[prono];
+        pronoNode.rows.push({ca, conc, ca_single, cote});
     });
 
-    return result;
+    // Calculer les stats pour chaque node
+    function computeNodeStats(node, totalParentCA = null) {
+        const totalCA = node.rows.reduce((sum,r) => sum+r.ca,0);
+        const count = node.rows.length;
+        const concentrationCA = count ? (node.rows.reduce((sum,r)=>sum+r.conc,0)/count) : 0;
+        const concentrationSingle = count ? (node.rows.reduce((sum,r)=>sum+r.ca_single,0)/count) : 0;
+        const caPercent = totalParentCA ? (totalCA/totalParentCA)*100 : 100;
+
+        node.stats = {totalCA, concentrationCA, concentrationSingle, caPercent};
+
+        // Appliquer récursivement
+        Object.values(node.children).forEach(child => computeNodeStats(child, totalCA));
+    }
+
+    Object.values(structuredData).forEach(sportNode => computeNodeStats(sportNode));
 }
 
 /*************************************************
@@ -186,29 +221,11 @@ function buildStructure(data) {
  *************************************************/
 const app = document.getElementById('app');
 
-function computeStats(rows) {
-    let totalCA = 0;
-    let sumConcCA = 0;
-    let sumConcSingle = 0;
-
-    rows.forEach(r => {
-        const ca = CleanNumber(r[8]);
-        const conc = CleanNumber(r[9]);
-        const concSingle = CleanNumber(r[14]);
-
-        totalCA += ca;
-        sumConcCA += conc;
-        sumConcSingle += concSingle;
-    });
-
-    const count = rows.length;
-
-    return {
-        totalCA: Math.round(totalCA),
-        concentrationCA: count ? (sumConcCA / count).toFixed(0) : 0,
-        concentrationSingle: count ? (sumConcSingle / count).toFixed(0) : 0,
-        caPercent: 50
-    };
+function heatColor(value, min = 1.5, max = 3.5) {
+    const v = Math.max(min, Math.min(max, value));
+    const ratio = (v - min) / (max - min);
+    const hue = 120 - (120 * ratio);
+    return `hsl(${hue}, 75%, 55%)`;
 }
 
 function riskLabel(value) {
@@ -217,295 +234,100 @@ function riskLabel(value) {
     return "🟢 Stable";
 }
 
-function heatColor(value, min = 1.5, max = 3.5) {
-    const v = Math.max(min, Math.min(max, value));
-    const ratio = (v - min) / (max - min);
+function renderNode(title, node, level, parentOnClick = null, childOnClick = null, isProno = false) {
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heat = heatColor(node.stats.concentrationSingle);
 
-    // Vert (120) → Rouge (0)
-    const hue = 120 - (120 * ratio);
+    card.style.borderLeft = `8px solid ${heat}`;
+    card.style.background = `linear-gradient(135deg, rgba(255,255,255,1), ${heat}15)`;
 
-    return `hsl(${hue}, 75%, 55%)`;
+    // Déterminer le label selon le niveau
+    let label = '';
+    
+    switch(level) {
+        case 0: label = node.childrenCount === 1 ? 'compétition' : 'compétitions'; break;
+        case 1: label = node.childrenCount === 1 ? 'événement' : 'événements'; break;
+        case 2: label = node.childrenCount === 1 ? 'market' : 'markets'; break;
+        case 3: label = node.childrenCount === 1 ? 'prono' : 'pronos'; break;
+    }
+
+    // Stats HTML
+    let statHtml = `
+        <div class="card-stats">
+            <div class="stat-main">
+                CA <span>${Math.round(node.stats.totalCA)} €</span>
+                ${isProno ? ` | Cote: ${node.rows[0].cote}` : ''}
+            </div>
+            <div class="stat-row">
+                % CA: ${node.stats.concentrationCA.toFixed(0)} | % Single: ${node.stats.concentrationSingle.toFixed(0)}
+                ${!isProno ? `<br>${node.childrenCount} ${label}` : ''}
+            </div>
+        </div>
+        <div class="ca-bar">
+            <div class="ca-bar-fill" style="width:${node.stats.caPercent}%; background:${heat}"></div>
+        </div>
+    `;
+
+    card.innerHTML = `<h2>${title}</h2>${statHtml}`;
+
+    // Si clic parent, exécute-le
+    if (parentOnClick) card.onclick = parentOnClick;
+    else if (childOnClick) card.onclick = childOnClick;
+
+    app.appendChild(card);
 }
 
+/*************************************************
+ * RENDER — Fonctions pour tous les niveaux
+ *************************************************/
+
+// Render sports (niveau racine)
 function renderSports() {
     app.innerHTML = '';
-    Object.entries(structuredData).forEach(([sport, competitions]) => {
-
-        const rows = filter_data.filter(r => r[1] === sport);
-        const cote = rows[0][7]
-        
-        const stats = computeStats(rows);
-        const heat = heatColor(stats.concentrationCA);
-        
-        let count = Object.keys(competitions).length;
-        
-        const card = document.createElement('div');
-        card.className = 'card';
-        
-        const label = count === 1 ? 'compétition' : 'compétitions';
-
-        card.style.borderLeft = `8px solid ${heat}`;
-        card.style.background = `
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,1),
-                ${heat}15
-            )
-        `;
-
-        card.innerHTML = `
-            <h2>${sport}</h2>
-
-            <div class="card-stats">
-            
-                <div class="stat-main">
-                    CA <span>${stats.totalCA} €</span>
-                    % CA Single : ${stats.concentrationSingle} %
-                </div>
-
-                <div class="stat-row">
-                    % CA : ${stats.concentrationCA} %
-                    ${count} ${label}
-                </div>
-            </div>
-
-            <div class="ca-bar">
-                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
-            </div>
-        `;
-
-        card.onclick = () => renderCompetitions(sport);
-        app.appendChild(card);
+    Object.entries(structuredData).forEach(([sport, sportNode]) => {
+        renderNode(sport, sportNode, 0, null, () => renderCompetitions(sport));
     });
 }
 
+// Render compétitions pour un sport
 function renderCompetitions(sport) {
+    const sportNode = structuredData[sport];
     app.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
-
-    Object.entries(structuredData[sport]).forEach(([competition, events]) => {
-
-        const rows = filter_data.filter(r => 
-            r[1] === sport &&
-            r[2] == competition
-        );
-        const cote = rows[0][7]
-        
-        const stats = computeStats(rows);
-        const heat = heatColor(stats.concentrationCA);
-        
-        let count = Object.keys(events).length;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const label = count === 1 ? 'événement' : 'événements';
-
-        card.style.borderLeft = `8px solid ${heat}`;
-        card.style.background = `
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,1),
-                ${heat}15
-            )
-        `;
-
-        card.innerHTML = `
-            <h2>${competition}</h2>
-
-            <div class="card-stats">
-            
-                <div class="stat-main">
-                    CA <span>${stats.totalCA} €</span>
-                    % CA Single : ${stats.concentrationSingle} %
-                </div>
-
-                <div class="stat-row">
-                    % CA : ${stats.concentrationCA} %
-                    ${count} ${label}
-                </div>
-            </div>
-
-            <div class="ca-bar">
-                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
-            </div>
-        `;
-
-        card.onclick = () => renderEvents(sport, competition);
-        app.appendChild(card);
+    Object.entries(sportNode.children).forEach(([competition, compNode]) => {
+        renderNode(competition, compNode, 1, null, () => renderEvents(sport, competition));
     });
 }
 
+// Render événements pour une compétition
 function renderEvents(sport, competition) {
+    const compNode = structuredData[sport].children[competition];
     app.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
-
-    Object.entries(structuredData[sport][competition]).forEach(([event, mkts]) => {
-
-        const rows = filter_data.filter(r => 
-            r[1] === sport &&
-            r[2] == competition &&
-            r[3] == event
-        );
-        const cote = rows[0][7]
-        
-        const stats = computeStats(rows);
-        const heat = heatColor(stats.concentrationCA);
-        
-        let count = Object.keys(mkts).length;
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const label = count === 1 ? 'market' : 'markets';
-
-        card.style.borderLeft = `8px solid ${heat}`;
-        card.style.background = `
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,1),
-                ${heat}15
-            )
-        `;
-
-        card.innerHTML = `
-            <h2>${event}</h2>
-
-            <div class="card-stats">
-            
-                <div class="stat-main">
-                    CA <span>${stats.totalCA} €</span>
-                    % CA Single : ${stats.concentrationSingle} %
-                </div>
-
-                <div class="stat-row">
-                    % CA : ${stats.concentrationCA} %
-                    ${count} ${label}
-                </div>
-            </div>
-
-            <div class="ca-bar">
-                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
-            </div>
-        `;
-
-        card.onclick = () => renderMarkets(sport, competition, event);
-        app.appendChild(card);
+    Object.entries(compNode.children).forEach(([event, eventNode]) => {
+        renderNode(event, eventNode, 2, null, () => renderMarkets(sport, competition, event));
     });
 }
 
+// Render markets pour un événement
 function renderMarkets(sport, competition, event) {
+    const eventNode = structuredData[sport].children[competition].children[event];
     app.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
-
-    Object.entries(structuredData[sport][competition][event]).forEach(([mkt, pronos]) => {
-
-        const rows = filter_data.filter(r => 
-            r[1] === sport &&
-            r[2] == competition &&
-            r[3] == event &&
-            r[4] == mkt
-        );
-        const cote = rows[0][7]
-        
-        const stats = computeStats(rows);
-        const heat = heatColor(stats.concentrationCA);
-
-        let count = Object.keys(pronos).length;
-        
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const label = count === 1 ? 'prono' : 'pronos';
-
-        card.style.borderLeft = `8px solid ${heat}`;
-        card.style.background = `
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,1),
-                ${heat}15
-            )
-        `;
-
-        card.innerHTML = `
-            <h2>${mkt}</h2>
-
-            <div class="card-stats">
-            
-                <div class="stat-main">
-                    CA <span>${stats.totalCA} €</span>
-                    % CA Single : ${stats.concentrationSingle} %
-                </div>
-
-                <div class="stat-row">
-                    % CA : ${stats.concentrationCA} %
-                    ${count} ${label}
-                </div>
-            </div>
-
-            <div class="ca-bar">
-                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
-            </div>
-        `;
-
-        card.onclick = () => renderPronos(sport, competition, event, mkt);
-        app.appendChild(card);
+    Object.entries(eventNode.children).forEach(([mkt, mktNode]) => {
+        renderNode(mkt, mktNode, 3, null, () => renderPronos(sport, competition, event, mkt));
     });
 }
 
+// Render pronos pour un market
 function renderPronos(sport, competition, event, mkt) {
+    const mktNode = structuredData[sport].children[competition].children[event].children[mkt];
     app.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
-
-    structuredData[sport][competition][event][mkt].forEach(prono => {
-
-        const rows = filter_data.filter(r => 
-            r[1] === sport &&
-            r[2] == competition &&
-            r[3] == event &&
-            r[4] == mkt &&
-            r[5] == prono
-        );
-        const cote = rows[0][7]
-        
-        const stats = computeStats(rows);
-        const heat = heatColor(stats.concentrationCA);
-        
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        card.style.borderLeft = `8px solid ${heat}`;
-        card.style.background = `
-            linear-gradient(
-                135deg,
-                rgba(255,255,255,1),
-                ${heat}15
-            )
-        `;
-
-        card.innerHTML = `
-            <h2>${mkt}</h2>
-
-            <div class="card-stats">
-            
-                <div class="stat-main">
-                    CA <span>${stats.totalCA} €</span>
-                    Cote : ${cote}
-                </div>
-
-                <div class="stat-row">
-                    % CA Single : ${stats.concentrationSingle} %
-                    % CA : ${stats.concentrationCA} %
-                    ${count} ${label}
-                </div>
-            </div>
-
-            <div class="ca-bar">
-                <div class="ca-bar-fill" style="width:${stats.caPercent}%; background:${heat}"></div>
-            </div>
-        `;
-        
-        app.appendChild(card);
+    Object.entries(mktNode.children).forEach(([prono, pronoNode]) => {
+        renderNode(prono, pronoNode, 4, null, null, true);
     });
 }
 
 /*************************************************
  * INIT
  *************************************************/
-// --- Lancement ---
 window.addEventListener('DOMContentLoaded', loadAllRiskCSVs);
