@@ -29,6 +29,9 @@ async function loadAllRiskCSVs() {
 
     console.log("RAW DATA:", raw_data);
 
+    // RETRAITEMENT DONNEES
+    addCalculatedColumn(raw_data, 7)
+
     // Filtrage + cascade
     applyFilter();
 
