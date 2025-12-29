@@ -88,10 +88,12 @@ function applyFilter() {
         const odd = CleanNumber(row[7]);
         const ca = CleanNumber(row[8]);
         const ca_single = safeDivide(CleanNumber(row[14]), 100);
-        console.log("Filter Values", odd, ca, ca_single);
+        //console.log("Filter Values", odd, ca, ca_single);
         return ca >= 1000 && odd >= 2;
     });
 
+    console.log("FILTER DATA:", raw_data);
+    
     structuredData = buildStructure(filter_data);
     renderSports();
 }
@@ -99,21 +101,23 @@ function applyFilter() {
 /*************************************************
  * PHASE 3 — Structuration cascade
  *************************************************/
+
 function buildStructure(data) {
     const result = {};
 
     data.forEach(row => {
-        const sport = row[1];
-        const competition = row[2];
+        const sport = row[1] || "Inconnu";
+        const competition = row[2] || "Inconnu";
+        const event = row[3] || "Inconnu";
+        const mkt = row[4] || "Inconnu";
+        const prono = row[5] || "Inconnu";
 
         if (!result[sport]) result[sport] = {};
-        if (!result[sport][competition]) result[sport][competition] = [];
+        if (!result[sport][competition]) result[sport][competition] = {};
+        if (!result[sport][competition][event]) result[sport][competition][event] = {};
+        if (!result[sport][competition][event][mkt]) result[sport][competition][event][mkt] = [];
 
-        result[sport][competition].push({
-            event: row[3],
-            mkt: row[4],
-            prono: row[5]
-        });
+        result[sport][competition][event][mkt].push(prono);
     });
 
     return result;
@@ -126,18 +130,16 @@ const app = document.getElementById('app');
 
 function renderSports() {
     app.innerHTML = '';
-
     Object.entries(structuredData).forEach(([sport, competitions]) => {
-        let count = 0;
-        Object.values(competitions).forEach(c => count += c.length);
+        let count = Object.values(competitions).reduce((acc, comp) => {
+            return acc + Object.values(comp).reduce((a, ev) => {
+                return a + Object.values(ev).reduce((aa, mkts) => aa + mkts.length, 0);
+            }, 0);
+        }, 0);
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-            <h2>${sport}</h2>
-            <small>${count} événements</small>
-        `;
-
+        card.innerHTML = `<h2>${sport}</h2><small>${count} événements</small>`;
         card.onclick = () => renderCompetitions(sport);
         app.appendChild(card);
     });
@@ -147,30 +149,50 @@ function renderCompetitions(sport) {
     app.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
 
     Object.entries(structuredData[sport]).forEach(([competition, events]) => {
+        let count = Object.values(events).reduce((acc, mkts) => {
+            return acc + Object.values(mkts).reduce((a, mktArr) => a + mktArr.length, 0);
+        }, 0);
+
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-            <h2>${competition}</h2>
-            <small>${events.length} événements</small>
-        `;
-
+        card.innerHTML = `<h2>${competition}</h2><small>${count} événements</small>`;
         card.onclick = () => renderEvents(sport, competition);
         app.appendChild(card);
     });
 }
 
 function renderEvents(sport, competition) {
-    app.innerHTML = `
-        <div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>
-    `;
+    app.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
 
-    structuredData[sport][competition].forEach(e => {
+    Object.entries(structuredData[sport][competition]).forEach(([event, mkts]) => {
+        let count = Object.values(mkts).reduce((a, pArr) => a + pArr.length, 0);
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-            <h2>${e.event}</h2>
-            <small>Market: ${e.mkt} | Prono: ${e.prono}</small>
-        `;
+        card.innerHTML = `<h2>${event}</h2><small>${count} markets</small>`;
+        card.onclick = () => renderMarkets(sport, competition, event);
+        app.appendChild(card);
+    });
+}
+
+function renderMarkets(sport, competition, event) {
+    app.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
+
+    Object.entries(structuredData[sport][competition][event]).forEach(([mkt, pronos]) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h2>${mkt}</h2><small>${pronos.length} pronos</small>`;
+        card.onclick = () => renderPronos(sport, competition, event, mkt);
+        app.appendChild(card);
+    });
+}
+
+function renderPronos(sport, competition, event, mkt) {
+    app.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
+
+    structuredData[sport][competition][event][mkt].forEach(prono => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h2>${prono}</h2>`;
         app.appendChild(card);
     });
 }
