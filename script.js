@@ -11,6 +11,8 @@ const files = [
 
 const riskFiles = files.filter(f => f.includes('suivi_du_risque'));
 
+let comp_data = [];
+
 let filter_data = [];
 let structuredData = {};
 
@@ -55,6 +57,52 @@ function parseAndAppendCSV(csvText) {
 }
 
 /*************************************************
+ * PHASE 1 BIS — DONNEES CALCULEES
+ *************************************************/
+
+function addCalculatedColumn(raw_data, coteColIndex) {
+    comp_data = []; // réinitialiser
+
+    // 1. Regrouper par mkt_id (colonne 0)
+    const mktGroups = {};
+    raw_data.forEach(row => {
+        const mktId = row[0];
+        if (!mktGroups[mktId]) mktGroups[mktId] = [];
+        mktGroups[mktId].push(row);
+    });
+
+    // 2. Calculer cote calculée pour chaque groupe
+    Object.values(mktGroups).forEach(group => {
+        const cotes = group.map(r => cleanNumber(r[coteColIndex]));
+
+        let coteCalc;
+        if (group.length === 3) {
+            coteCalc = Math.max(...cotes);
+        } else if (group.length === 4) {
+            coteCalc = Math.max(cotes[1], cotes[3]);
+        } else {
+            coteCalc = median(cotes);
+        }
+
+        // 3. Ajouter la cote calculée à chaque ligne
+        group.forEach(r => {
+            comp_data.push([...r, coteCalc]);
+        });
+    });
+
+    console.log("COMP_DATA:", comp_data);
+}
+
+// Fonction utilitaire pour médiane
+function median(arr) {
+    const sorted = arr.slice().sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0
+        ? sorted[mid]
+        : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/*************************************************
  * PHASE 2 — Filtrage
  *************************************************/
 
@@ -84,12 +132,16 @@ function CleanNumber(content) {
 
 function applyFilter() {
     
-    filter_data = raw_data.filter(row => {
+    filter_data = comp_data.filter(row => {
+        const sport = row[1]?;
         const odd = CleanNumber(row[7]);
+        const odd_ratio = safeDivide(row[24], odd)
         const ca = CleanNumber(row[8]);
         const ca_single = safeDivide(CleanNumber(row[14]), 100);
+        
         //console.log("Filter Values", odd, ca, ca_single);
-        return ca >= 1000 && odd >= 2;
+        
+        return sport && ca >= 1000 && odd >= 2 && odd_ratio >= 1.2 ;
     });
 
     console.log("FILTER DATA:", filter_data);
