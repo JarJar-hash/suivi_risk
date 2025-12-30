@@ -111,7 +111,7 @@ header {
 }
 
 .risk-table th {
-    vertical-align: bottom; /* Alignement bas du header */
+    vertical-align: bottom;
     padding: 4px 6px;
 }
 
@@ -139,30 +139,27 @@ th.sortable sup {
     color: #555;
 }
 
-/* Inputs texte et numérique */
-.filter-input {
-    width: 100%;
-    box-sizing: border-box;
+.filter-input, .filter-op {
+    height: 32px;            /* Hauteur uniforme pour toutes les zones */
+    font-size: 0.95em;       /* Police plus lisible */
     padding: 4px 6px;
-    font-size: 0.9em;
-    height: 28px;       /* Hauteur fixe pour tous les champs */
-    line-height: 1.2;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 3px;
 }
 
 /* Container pour les filtres numériques (select + input) */
 .filter-numeric {
     display: flex;
     gap: 4px;
-    align-items: stretch;  /* Étire les enfants sur la même hauteur */
+    align-items: stretch;    /* Étire le select et l'input sur la même hauteur */
 }
 
 /* Sélecteur d'opérateur */
 .filter-op {
-    width: 50px;
-    padding: 0 4px;
-    font-size: 0.9em;
-    height: 28px;       /* Même hauteur que l'input */
-    box-sizing: border-box;
+    width: 60px;             /* Taille fixe pour le select */
+    flex-shrink: 0;          /* Ne pas réduire */
+    background: #fff;
 }
 
 /* Grid responsive */
