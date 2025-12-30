@@ -375,6 +375,7 @@ function renderRisksTable() {
 
     // Transformation des données
     let rows = filter_data.map(row => ({
+        riskIntegrity: CleanNumber(CleanNumber(row[14]) / 10, decimals = 1),
         sport: row[1],
         competition: row[2],
         event: row[3],
@@ -383,8 +384,7 @@ function renderRisksTable() {
         cote: CleanNumber(row[7]),
         ca: CleanNumber(row[8]),
         conc: CleanNumber(row[9]),
-        concSingle: CleanNumber(row[14]),
-        riskIntegrity: CleanNumber(concSingle / 10, decimals = 1)
+        concSingle: CleanNumber(row[14])
     }));
 
     // Appliquer filtres
