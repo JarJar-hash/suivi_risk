@@ -150,7 +150,7 @@ function applyFilter() {
         
         //console.log("Filter Values", odd, ca, ca_single);
         
-        return sport && ca >= 1000 && odd >= 2 && odd_ratio >= 1.2 ;
+        return sport && ca >= 1000 && odd >= 1.6 && odd_ratio >= 0.8 ;
     });
 
     console.log("FILTER DATA:", filter_data);
