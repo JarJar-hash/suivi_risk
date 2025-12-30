@@ -1,17 +1,54 @@
 /* =========================================================
+   VARIABLES GLOBALES
+========================================================= */
+:root {
+    /* Couleurs */
+    --bg-page: #f4f6f8;
+    --bg-card: #ffffff;
+    --bg-soft: #f1f5f9;
+    --bg-soft-2: #f8fafc;
+
+    --blue-main: #00265a;
+    --blue-mid: #1e4fa1;
+    --blue-active: #2AA1EB;
+
+    --text-main: #0f172a;
+    --text-soft: #475569;
+    --text-header: #2c3e50;
+
+    --border-soft: #e5e7eb;
+
+    /* Dimensions */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+
+    --control-height: 2.2rem;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+
+    /* Typo */
+    --fs-xs: clamp(0.7rem, 0.75vw, 0.8rem);
+    --fs-sm: clamp(0.8rem, 0.85vw, 0.9rem);
+    --fs-md: clamp(0.9rem, 1vw, 1.05rem);
+    --fs-lg: clamp(1rem, 1.2vw, 1.15rem);
+}
+
+/* =========================================================
    GLOBAL
 ========================================================= */
 body {
     margin: 0;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-    background: #f4f6f8;
-    color: #0f172a;
+    background: var(--bg-page);
+    color: var(--text-main);
 }
 
 /* =========================================================
-   HEADER – ParionsSport style
+   HEADER
 ========================================================= */
-
 .ps-header {
     position: sticky;
     top: 0;
@@ -19,94 +56,77 @@ body {
 
     display: flex;
     align-items: center;
+    gap: var(--space-lg);
 
-    width: 100%;
-    padding: 10px 24px;
-
-    background: linear-gradient(
-        90deg,
-        #00265a 0%,
-        #0b3c8a 50%,
-        #1e4fa1 100%
-    );
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-}
-
-.ps-header-left {
-    display: flex;
-    align-items: center;
-    margin-right: 24px;
+    padding: var(--space-sm) var(--space-lg);
+    background: linear-gradient(90deg, #00265a, #0b3c8a, #1e4fa1);
+    box-shadow: 0 4px 10px rgba(0,0,0,.25);
 }
 
 .ps-header-left img {
-    height: 48px;
-    width: auto;
-    display: block;
+    height: clamp(40px, 5vw, 48px);
 }
 
 .ps-header-nav {
     display: flex;
-    gap: 16px;
+    gap: var(--space-sm);
 }
 
 .ps-header-nav a {
-    color: #ffffff;
+    color: #fff;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.95rem;
-    padding: 8px 14px;
-    border-radius: 6px;
+    font-size: var(--fs-sm);
+    padding: 0.45em 0.9em;
+    border-radius: var(--radius-sm);
     transition: background .2s ease;
 }
 
 .ps-header-nav a:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,.15);
 }
 
 .ps-header-nav a.active {
-    background: #2AA1EB;
+    background: var(--blue-active);
 }
 
 /* =========================================================
-   CARDS – Vue cascade
+   CARDS
 ========================================================= */
-
 #cardsView {
-    padding: 16px;
+    padding: var(--space-md);
     display: grid;
-    gap: 24px;
+    gap: var(--space-lg);
 }
 
 .card {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 16px 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    transition: transform .15s ease, box-shadow .15s ease;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    transition: transform .15s, box-shadow .15s;
 }
 
 .card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 26px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 26px rgba(0,0,0,.15);
 }
 
 .card h2 {
     margin: 0;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #00265a;
+    font-size: var(--fs-md);
+    color: var(--blue-main);
 }
 
 .card-stats {
-    margin-top: 12px;
-    padding: 10px 12px;
-    background: #f1f5f9;
-    border-radius: 10px;
+    margin-top: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--bg-soft);
+    border-radius: var(--radius-md);
 }
 
 .stat-main {
-    font-size: 1.15rem;
+    font-size: var(--fs-lg);
     font-weight: 700;
 }
 
@@ -115,108 +135,96 @@ body {
 }
 
 .stat-row {
-    font-size: 0.85rem;
-    color: #475569;
-    margin-top: 4px;
-}
-
-.ca-bar {
-    margin-top: 10px;
-    height: 8px;
-    background: #e5e7eb;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.ca-bar-fill {
-    height: 100%;
-    transition: width .3s ease;
-}
-
-/* Bouton retour */
-.back {
-    margin-bottom: 14px;
-    cursor: pointer;
-    color: #1e4fa1;
-    font-weight: 600;
-}
-.back:hover {
-    text-decoration: underline;
+    font-size: var(--fs-xs);
+    color: var(--text-soft);
 }
 
 /* =========================================================
-   TABLEAU – FDJ PRO
+   TABLEAU
 ========================================================= */
-
 #risksView {
-    padding: 16px 24px;
-    width: 100%;
+    padding: var(--space-md) var(--space-lg);
 }
 
-/* TOP N */
 .risk-controls {
-   font-weight: 600;
-   color: #00265a;
-   background: #f1f5f9;
+    font-weight: 600;
+    color: var(--text-header);
+    background: var(--bg-soft);
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius-sm);
 }
 
-/* TABLE */
 .risk-table {
-   width: 100%;
-   border-collapse: collapse;
-   margin: 0;
-   background: #ffffff;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
 }
 
-/* EN-TÊTE – FULL WIDTH */
-.risk-table thead {
-    background: linear-gradient(
-        90deg,
-        #00265a 0%,
-        #0b3c8a 50%,
-        #1e4fa1 100%
-    );
+.risk-table th,
+.risk-table td {
+    padding: 0.45em 0.75em;
+    font-size: var(--fs-sm);
+}
 
-   box-shadow: inset 0 -10px 0 #f4f6f8;
+.risk-table thead {
+    background: linear-gradient(90deg, #00265a, #0b3c8a, #1e4fa1);
+    box-shadow: inset 0 -12px 0 var(--bg-page);
 }
 
 .risk-table thead th {
-   color: #2c3e50;
-   font-weight: 700;
-   text-align: left;
-   vertical-align: bottom;
-   position: sticky;
-   top: 0;
-   z-index: 5;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    vertical-align: bottom;
+    color: var(--text-header);
 }
 
-/* TITRES COLONNES */
 .col-title {
-   color: #2c3e50;
-   font-size: 0.8rem;
-   margin-bottom: 4px;
-   cursor: pointer;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+    cursor: pointer;
 }
 
-/* FILTRES */
-.col-filter {
+/* =========================================================
+   FILTRES
+========================================================= */
+.col-filter,
+.filter-numeric {
     display: flex;
-    justify-content: flex-start;
+    gap: var(--space-xs);
 }
 
-.risk-table th, .risk-table td {
-    padding: 6px 12px;
+.filter-input,
+.filter-op {
+    height: var(--control-height);
+    font-size: var(--fs-xs);
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-sm);
+    color: var(--text-header);
 }
 
-/* CELLULES */
+.filter-input {
+    padding: 0 0.6em;
+    background: var(--bg-soft-2);
+    width: min(12rem, 100%);
+}
+
+.filter-op {
+    width: 2.4rem;
+    background: #e2e8f0;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* =========================================================
+   LIGNES
+========================================================= */
 .risk-table td {
-   font-size: 0.85rem;
-   border-bottom: 1px solid #e5e7eb;
-   text-align: left;
-   font-variant-numeric: tabular-nums;
+    border-bottom: 1px solid var(--border-soft);
 }
 
-/* LIGNES */
 .risk-table tbody tr:nth-child(even) {
     background: #f9fafb;
 }
@@ -226,78 +234,24 @@ body {
 }
 
 /* =========================================================
-   FILTRES – INPUT PRIORITAIRE
-========================================================= */
-
-.filter-numeric {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-}
-
-.filter-input {
-    height: 32px;
-    width: 120px;
-    font-size: 0.8rem;
-    padding: 4px 8px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-weight: 600;
-    background: #f8fafc;
-    color: #2c3e50;
-}
-
-.filter-op {
-    height: 32px;
-    width: 36px;
-    font-size: 0.75rem;
-    text-align: center;
-    font-weight: 700;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background: #e2e8f0;
-    color: #2c3e50;
-}
-
-/* =========================================================
    RESPONSIVE
 ========================================================= */
-
 @media (max-width: 768px) {
     .ps-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
     }
 
     .ps-header-nav {
         flex-wrap: wrap;
     }
 
-    .filter-input {
-        width: 90px;
-    }
-
-    .risk-controls {
-        margin-bottom: 24px; /* plus d’espace sur petits écrans */
-    }
-
     .risk-table thead th {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
     }
 
-    .risk-table thead .col-title {
-        margin-bottom: 4px;
-    }
-
-    .risk-table thead .col-filter {
-        width: 100%;
-    }
-
-    .risk-table thead input.filter-input,
-    .risk-table thead select.filter-op {
+    .filter-input {
         width: 100%;
     }
 }
