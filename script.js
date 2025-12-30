@@ -195,7 +195,7 @@ function renderRisksTable() {
         prono: row[5],
         cote: row[7],
         ca: CleanNumber(row[8]),
-        conc = CleanNumber(row[8]),
+        conc : CleanNumber(row[9]),
         concSingle: CleanNumber(row[14])
     }));
 
@@ -324,11 +324,14 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
     };
 
     if (isProno) {
-        count = 1; 
+        count = 1;
         label = 'prono';
     } else {
-        if (!isProno && levelLabels[level]) {
-            label = count === 1 ? levelLabels[level][0] : levelLabels[level][1];
+        count = Object.keys(node.children || {}).length;
+        if (levelLabels[level]) {
+            label = count === 1
+                ? levelLabels[level][0]
+                : levelLabels[level][1];
         }
     }
 
