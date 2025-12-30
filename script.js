@@ -1,5 +1,5 @@
 /*************************************************
- * PHASE 1 — Chargement CSV sans librairie
+ * Fonction principale
  *************************************************/
 
 let raw_data = [];
@@ -66,7 +66,7 @@ function parseAndAppendCSV(csvText) {
 }
 
 /*************************************************
- * PHASE 1 BIS — DONNEES CALCULEES
+ * DONNEES CALCULEES - RAW_DATA to COMP_DATA
  *************************************************/
 
 function addCalculatedColumn(raw_data, coteColIndex) {
@@ -112,7 +112,7 @@ function median(arr) {
 }
 
 /*************************************************
- * PHASE 2 — Filtrage
+ * Filtrage
  *************************************************/
 
 /**
@@ -157,10 +157,91 @@ function applyFilter() {
 }
 
 /*************************************************
- * PHASE 3 — Structuration cascade
+ * Gestion des vues
  *************************************************/
 
-// NEW VERSION
+const cardsView = document.getElementById('cardsView');
+const risksView = document.getElementById('risksView');
+
+function showView(view) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    if (view === 'cards') {
+        cardsView.style.display = 'block';
+        risksView.style.display = 'none';
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
+        renderSports();
+    } else {
+        cardsView.style.display = 'none';
+        risksView.style.display = 'block';
+        document.querySelector('.tab:nth-child(2)').classList.add('active');
+        renderRisksTable();
+    }
+}
+
+/*************************************************
+ * Vue Tableau
+ *************************************************/
+
+function renderRisksTable() {
+    risksView.innerHTML = '';
+
+    // Transformer les lignes
+    const rows = filter_data.map(row => ({
+        sport: row[1],
+        competition: row[2],
+        event: row[3],
+        market: row[4],
+        prono: row[5],
+        cote: row[7],
+        ca: CleanNumber(row[8]),
+        conc = CleanNumber(row[8]),
+        concSingle: CleanNumber(row[14])
+    }));
+
+    // Trier par CA décroissant
+    rows.sort((a, b) => b.ca - a.ca);
+
+    const table = document.createElement('table');
+    table.className = 'risk-table';
+
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Sport</th>
+                <th>Event</th>
+                <th>Market</th>
+                <th>Prono</th>
+                <th>CA (€)</th>
+                <th>Cote</th>
+                <th>% CA</th>
+                <th>% Single</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${rows.map(r => `
+                <tr style="border-left:6px solid ${heatColor(r.concSingle)}">
+                    <td>${r.sport}</td>
+                    <td>${r.event}</td>
+                    <td>${r.market}</td>
+                    <td><strong>${r.prono}</strong></td>
+                    <td class="ca">${Math.round(r.ca)}</td>
+                    <td>${r.cote}</td>
+                    <td>${r.conc.toFixed(0)}%</td>
+                    <td class="heat" style="color:${heatColor(r.concSingle)}">
+                        ${r.concSingle.toFixed(0)}%
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    risksView.appendChild(table);
+}
+
+/*************************************************
+ * Vue cascade - Structuration
+ *************************************************/
 
 function buildStructuredData() {
     structuredData = {};
@@ -216,9 +297,8 @@ function buildStructuredData() {
 }
 
 /*************************************************
- * PHASE 4 — UI Cascade
+ * UI Cascade
  *************************************************/
-const app = document.getElementById('app');
 
 function heatColor(value, min = 0, max = 100) { // ajusté selon %CA
     const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
@@ -275,16 +355,16 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
     if (parentOnClick) card.onclick = parentOnClick;
     else if (childOnClick) card.onclick = childOnClick;
 
-    app.appendChild(card);
+    cardsView.appendChild(card);
 }
 
 /*************************************************
- * RENDER — Fonctions pour tous les niveaux
+ * UI - Each Level
  *************************************************/
 
 // Render sports (niveau racine)
 function renderSports() {
-    app.innerHTML = '';
+    cardsView.innerHTML = '';
     Object.entries(structuredData).forEach(([sport, sportNode]) => {
         renderNode(sport, sportNode, 0, null, () => renderCompetitions(sport));
     });
@@ -293,7 +373,7 @@ function renderSports() {
 // Render compétitions pour un sport
 function renderCompetitions(sport) {
     const sportNode = structuredData[sport];
-    app.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
+    cardsView.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
     Object.entries(sportNode.children).forEach(([competition, compNode]) => {
         renderNode(competition, compNode, 1, null, () => renderEvents(sport, competition));
     });
@@ -302,7 +382,7 @@ function renderCompetitions(sport) {
 // Render événements pour une compétition
 function renderEvents(sport, competition) {
     const compNode = structuredData[sport].children[competition];
-    app.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
+    cardsView.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
     Object.entries(compNode.children).forEach(([event, eventNode]) => {
         renderNode(event, eventNode, 2, null, () => renderMarkets(sport, competition, event));
     });
@@ -311,7 +391,7 @@ function renderEvents(sport, competition) {
 // Render markets pour un événement
 function renderMarkets(sport, competition, event) {
     const eventNode = structuredData[sport].children[competition].children[event];
-    app.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
+    cardsView.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
     Object.entries(eventNode.children).forEach(([mkt, mktNode]) => {
         renderNode(mkt, mktNode, 3, null, () => renderPronos(sport, competition, event, mkt));
     });
@@ -320,7 +400,7 @@ function renderMarkets(sport, competition, event) {
 // Render pronos pour un market
 function renderPronos(sport, competition, event, mkt) {
     const mktNode = structuredData[sport].children[competition].children[event].children[mkt];
-    app.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
+    cardsView.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
     Object.entries(mktNode.children).forEach(([prono, pronoNode]) => {
         renderNode(prono, pronoNode, 4, null, null, true);
     });
