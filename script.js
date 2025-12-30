@@ -246,7 +246,7 @@ const riskColumns = [
 
 // LOGIQUE DE FILTRE
 
-function debounce(func, delay = 300) {
+function debounce(func, delay = 600) {
     let timeout;
     return (...args) => {
         clearTimeout(timeout);
@@ -286,7 +286,7 @@ function applyColumnFilters(rows) {
     });
 }
 
-const debouncedRender = debounce(renderRisksTable, 300);
+const debouncedRender = debounce(renderRisksTable, delay = 600);
 
 function updateFilter(key, value) { columnFilters[key] = value; debouncedRender(); }
 function updateFilterOperator(key, op) { columnFilters[key].op = op; debouncedRender(); }
@@ -321,12 +321,14 @@ function renderFilterInput(key) {
                        oninput="updateFilter('${key}', this.value)">`;
     } else {
         return `
-            <select onchange="updateFilterOperator('${key}', this.value)">
-                <option value=">=" ${columnFilters[key].op === '>=' ? 'selected':''}>&ge;</option>
-                <option value="<=" ${columnFilters[key].op === '<=' ? 'selected':''}>&le;</option>
-            </select>
-            <input type="number" value="${columnFilters[key].value}" 
-                   oninput="updateFilterValue('${key}', this.value)">
+            <div class="filter-numeric">
+                <select class="filter-op" onchange="updateFilterOperator('${key}', this.value)">
+                    <option value=">=" ${columnFilters[key].op === '>=' ? 'selected':''}>&ge;</option>
+                    <option value="<=" ${columnFilters[key].op === '<=' ? 'selected':''}>&le;</option>
+                </select>
+                <input type="number" class="filter-input" value="${columnFilters[key].value}" 
+                       oninput="updateFilterValue('${key}', this.value)" placeholder="Valeur">
+            </div>
         `;
     }
 }
@@ -376,7 +378,7 @@ function renderRisksTable() {
                     ${limits.map(v => `<option value="${v}" ${riskLimit===v?'selected':''}>${v}</option>`).join('')}
                     <option value="${total}" ${riskLimit===total?'selected':''}>${total}</option>
                 </select>
-                risks
+                // risks
             </label>
         </div>
     `;
