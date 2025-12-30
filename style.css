@@ -181,7 +181,7 @@ body {
 }
 
 .risk-table thead th {
-   color: #ffffff;
+   color: #2c3e50;
    font-weight: 700;
    text-align: left;
    vertical-align: bottom;
@@ -192,9 +192,10 @@ body {
 
 /* TITRES COLONNES */
 .col-title {
-    font-size: 0.8rem;
-    margin-bottom: 4px;
-    cursor: pointer;
+   color: #2c3e50;
+   font-size: 0.8rem;
+   margin-bottom: 4px;
+   cursor: pointer;
 }
 
 /* FILTRES */
@@ -243,7 +244,7 @@ body {
     border-radius: 6px;
     font-weight: 600;
     background: #f8fafc;
-    color: #00265a;
+    color: #2c3e50;
 }
 
 .filter-op {
@@ -255,7 +256,7 @@ body {
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     background: #e2e8f0;
-    color: #00265a;
+    color: #2c3e50;
 }
 
 /* =========================================================
