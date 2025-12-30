@@ -103,14 +103,19 @@ body {
     padding: var(--space-md);
 }
 
-#cardsBack {
-    margin-bottom: var(--space-md);
+/* Conteneur vertical des cards */
+#cardsContainer {
+    display: flex;
+    flex-direction: column; /* empilement vertical */
+    gap: var(--space-lg);   /* espace entre les cards */
 }
 
-#cardsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--space-lg); /* espace entre les cards */
+/* Bouton retour */
+.back {
+    cursor: pointer;
+    margin-bottom: var(--space-md);
+    font-weight: bold;
+    color: var(--blue-main);
 }
 
 .card {
