@@ -235,24 +235,28 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
     card.style.borderLeft = `8px solid ${heat}`;
     card.style.background = `linear-gradient(135deg, rgba(255,255,255,1), ${heat}15)`;
 
-    // Déterminer le label selon le niveau
     let count, label;
+    const levelLabels = {
+        0: ['compétition', 'compétitions'],
+        1: ['événement', 'événements'],
+        2: ['market', 'markets'],
+        3: ['prono', 'pronos'],
+    };
+
     if (isProno) {
         count = 1; 
         label = 'prono';
     } else {
-        count = node.children ? Object.keys(node.children).length : node.rows.length;
-        if (level === 'sport') label = count === 1 ? 'compétition' : 'compétitions';
-        else if (level === 'competition') label = count === 1 ? 'événement' : 'événements';
-        else if (level === 'event') label = count === 1 ? 'market' : 'markets';
-        else if (level === 'market') label = count === 1 ? 'prono' : 'pronos';
+        if (!isProno && levelLabels[level]) {
+            label = count === 1 ? levelLabels[level][0] : levelLabels[level][1];
+        }
     }
 
     // Stats HTML
     let statHtml = `
         <div class="card-stats">
             <div class="stat-main">
-                CA <span>${Math.round(node.stats.totalCA)} €</span>
+                <span>${Math.round(node.stats.totalCA)} €</span>
                 ${isProno ? ` | Cote: ${node.rows[0].cote}` : ''}
             </div>
             <div class="stat-row">
