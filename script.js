@@ -195,7 +195,7 @@ document.querySelectorAll('.ps-header-nav a').forEach(link => {
  * Vue Tableau
  *************************************************/
 
-// LOGIQUE DE TRI
+/***************** LOGIQUE DE TRI ****************/
 
 let riskSort = [
     { key: 'ca', direction: 'desc' } // tri par défaut
@@ -244,20 +244,7 @@ function sortRisks(rows) {
     });
 }
 
-const riskColumns = [
-    { key: 'riskIntegrity', label: 'Risque Integrite' },
-    { key: 'sport', label: 'Sport' },
-    { key: 'competition', label: 'Competition' },
-    { key: 'event', label: 'Event' },
-    { key: 'market', label: 'Market' },
-    { key: 'prono', label: 'Prono' },
-    { key: 'ca', label: 'CA (€)' },
-    { key: 'cote', label: 'Cote' },
-    { key: 'conc', label: '% CA' },
-    { key: 'concSingle', label: '% Single' }
-];
-
-// LOGIQUE DE FILTRE
+/***************** LOGIQUE DE FILTRE ****************/
 
 function debounce(func, delay = 600) {
     let timeout;
@@ -266,19 +253,6 @@ function debounce(func, delay = 600) {
         timeout = setTimeout(() => func(...args), delay);
     };
 }
-
-let columnFilters = {
-    riskIntegrity: { op: '>=', value: '' },
-    sport: '',
-    competition: '',
-    event: '',
-    market: '',
-    prono: '',
-    ca: { op: '>=', value: '' },
-    cote: { op: '>=', value: '' },
-    conc: { op: '>=', value: '' },
-    concSingle: { op: '>=', value: '' },
-};
 
 function applyColumnFilters(rows) {
     return rows.filter(r => {
@@ -305,6 +279,35 @@ const debouncedRender = debounce(renderRisksTable, delay = 600);
 function updateFilter(key, value) { columnFilters[key] = value; debouncedRender(); }
 function updateFilterOperator(key, op) { columnFilters[key].op = op; debouncedRender(); }
 function updateFilterValue(key, value) { columnFilters[key].value = value; debouncedRender(); }
+
+
+/***************** Construction du Tableau ****************/
+
+const riskColumns = [
+    { key: 'riskIntegrity', label: 'Integrite' },
+    { key: 'sport', label: 'Sport' },
+    { key: 'competition', label: 'Competition' },
+    { key: 'event', label: 'Event' },
+    { key: 'market', label: 'Market' },
+    { key: 'prono', label: 'Prono' },
+    { key: 'ca', label: 'CA (€)' },
+    { key: 'cote', label: 'Cote' },
+    { key: 'conc', label: '% CA' },
+    { key: 'concSingle', label: '% Single' }
+];
+
+let columnFilters = {
+    riskIntegrity: { op: '>=', value: '' },
+    sport: '',
+    competition: '',
+    event: '',
+    market: '',
+    prono: '',
+    ca: { op: '>=', value: '' },
+    cote: { op: '>=', value: '' },
+    conc: { op: '>=', value: '' },
+    concSingle: { op: '>=', value: '' },
+};
 
 function renderTableHeader() {
     return `
