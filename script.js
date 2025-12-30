@@ -183,6 +183,8 @@ function showView(view) {
  * Vue Tableau
  *************************************************/
 
+// LOGIQUE DE TRI
+
 let riskSort = [
     { key: 'ca', direction: 'desc' } // tri par défaut
 ];
@@ -232,6 +234,7 @@ function sortRisks(rows) {
 
 const riskColumns = [
     { key: 'sport', label: 'Sport' },
+    { key: 'competition', label: 'Competition' },
     { key: 'event', label: 'Event' },
     { key: 'market', label: 'Market' },
     { key: 'prono', label: 'Prono' },
@@ -241,6 +244,54 @@ const riskColumns = [
     { key: 'concSingle', label: '% Single' }
 ];
 
+// LOGIQUE DE FILTRE
+
+function debounce(func, delay = 300) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+}
+
+let columnFilters = {
+    sport: '',
+    competition: '',
+    event: '',
+    market: '',
+    prono: '',
+    ca: { op: '>=', value: '' },
+    cote: { op: '>=', value: '' },
+    conc: { op: '>=', value: '' },
+    concSingle: { op: '>=', value: '' },
+};
+
+function applyColumnFilters(rows) {
+    return rows.filter(r => {
+        // Filtres textuels
+        for (const key of ['sport', 'competition', 'event', 'market', 'prono']) {
+            const val = columnFilters[key].trim().toLowerCase();
+            if (val && !r[key].toLowerCase().includes(val)) return false;
+        }
+        // Filtres numériques
+        for (const key of ['ca', 'cote', 'conc', 'concSingle']) {
+            const { op, value } = columnFilters[key];
+            if (value !== '') {
+                const numValue = parseFloat(value);
+                if (op === '>=' && r[key] < numValue) return false;
+                if (op === '<=' && r[key] > numValue) return false;
+            }
+        }
+        return true;
+    });
+}
+
+const debouncedRender = debounce(renderRisksTable, 300);
+
+function updateFilter(key, value) { columnFilters[key] = value; debouncedRender(); }
+function updateFilterOperator(key, op) { columnFilters[key].op = op; debouncedRender(); }
+function updateFilterValue(key, value) { columnFilters[key].value = value; debouncedRender(); }
+
 function renderTableHeader() {
     return `
     <thead>
@@ -248,20 +299,36 @@ function renderTableHeader() {
             ${riskColumns.map(col => {
                 const idx = riskSort.findIndex(s => s.key === col.key);
                 const active = idx !== -1;
-                const arrow = active
-                    ? (riskSort[idx].direction === 'asc' ? '▲' : '▼')
-                    : '';
-                const order = active && riskSort.length > 1 ? `<sup>${idx + 1}</sup>` : '';
-
+                const arrow = active ? (riskSort[idx].direction === 'asc' ? '▲' : '▼') : '';
+                const order = active && riskSort.length > 1 ? `<sup>${idx+1}</sup>` : '';
                 return `
-                    <th class="sortable ${active ? 'active' : ''}"
-                        onclick="setRiskSort('${col.key}', event)">
-                        ${col.label} ${arrow} ${order}
+                    <th class="sortable ${active ? 'active' : ''}">
+                        <div onclick="setRiskSort('${col.key}', event)">
+                            ${col.label} ${arrow} ${order}
+                        </div>
+                        ${renderFilterInput(col.key)}
                     </th>
                 `;
             }).join('')}
         </tr>
     </thead>`;
+}
+
+// Génère l'input de filtre selon le type de colonne
+function renderFilterInput(key) {
+    if (['sport','competition','event','market','prono'].includes(key)) {
+        return `<input type="text" placeholder="Filtrer..." value="${columnFilters[key]}" 
+                       oninput="updateFilter('${key}', this.value)">`;
+    } else {
+        return `
+            <select onchange="updateFilterOperator('${key}', this.value)">
+                <option value=">=" ${columnFilters[key].op === '>=' ? 'selected':''}>&ge;</option>
+                <option value="<=" ${columnFilters[key].op === '<=' ? 'selected':''}>&le;</option>
+            </select>
+            <input type="number" value="${columnFilters[key].value}" 
+                   oninput="updateFilterValue('${key}', this.value)">
+        `;
+    }
 }
 
 let riskLimit = 10;
@@ -273,9 +340,13 @@ function setRiskLimit(value) {
 
 function renderRisksTable() {
     risksView.innerHTML = '';
+    const table = document.createElement('table');
+    table.className = 'risk-table';
 
+    // Transformation des données
     let rows = filter_data.map(row => ({
         sport: row[1],
+        competition: row[2],
         event: row[3],
         market: row[4],
         prono: row[5],
@@ -285,38 +356,30 @@ function renderRisksTable() {
         concSingle: CleanNumber(row[14])
     }));
 
-    rows = sortRisks(rows);
-    
-    const total = rows.length;
-    
-    if (riskLimit > 0) {
-        rows = rows.slice(0, riskLimit);
-    }
-    
-    const limits = [5, 10, 15, 30].filter(v => v < total);
-    
-    const controls = `
-    <div class="risk-controls">
-        <label>
-            Top
-            <select onchange="setRiskLimit(this.value)">
-                <option value="0" ${riskLimit === 0 ? 'selected' : ''}>Tous</option>
-                ${limits.map(v => `
-                    <option value="${v}" ${riskLimit === v ? 'selected' : ''}>
-                        ${v}
-                    </option>
-                `).join('')}
-                <option value="${total}" ${riskLimit === total ? 'selected' : ''}>
-                    ${total}
-                </option>
-            </select>
-            risks
-        </label>
-    </div>
-    `;
+    // Appliquer filtres
+    rows = applyColumnFilters(rows);
 
-    const table = document.createElement('table');
-    table.className = 'risk-table';
+    // Trier
+    rows = sortRisks(rows);
+
+    const total = rows.length;
+    if (riskLimit > 0) rows = rows.slice(0, riskLimit);
+
+    // Sélect Top N
+    const limits = [5,10,15,30].filter(v => v < total);
+    const controls = `
+        <div class="risk-controls">
+            <label>
+                Top
+                <select onchange="setRiskLimit(this.value)">
+                    <option value="0" ${riskLimit===0?'selected':''}>Tous</option>
+                    ${limits.map(v => `<option value="${v}" ${riskLimit===v?'selected':''}>${v}</option>`).join('')}
+                    <option value="${total}" ${riskLimit===total?'selected':''}>${total}</option>
+                </select>
+                risks
+            </label>
+        </div>
+    `;
 
     table.innerHTML = `
         ${controls}
@@ -325,6 +388,7 @@ function renderRisksTable() {
             ${rows.map(r => `
                 <tr style="border-left:6px solid ${heatColor(r.concSingle)}">
                     <td>${r.sport}</td>
+                    <td>${r.competition}</td>
                     <td>${r.event}</td>
                     <td>${r.market}</td>
                     <td><strong>${r.prono}</strong></td>
