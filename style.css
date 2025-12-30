@@ -1,17 +1,46 @@
+/* === Global === */
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f4f6f8;
 }
 
+/* === Header principal de la page === */
 header {
-    padding: 16px;
-    background: #1e293b;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 20px;
+    background: #1e293b;   /* Bleu foncé */
     color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Cards */
+/* === Tabs navigation === */
+.tabs {
+    display: flex;
+    margin-top: 10px;
+}
 
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #eee;
+    border-radius: 6px 6px 0 0;
+    margin-right: 5px;
+}
+
+.tab.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 3px solid #4CAF50;
+}
+
+/* === Cards View === */
 #cardsView {
     padding: 16px;
     display: grid;
@@ -34,7 +63,7 @@ header {
 
 .card h2 {
     font-size: 1.05rem;
-    margin: 0;
+    margin: 0 0 8px 0;
     color: #111827;
 }
 
@@ -43,13 +72,15 @@ header {
     padding: 10px 12px;
     background: #f1f5f9;
     border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
 }
 
 .stat-main {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #0f172a;
-    margin-bottom: 6px;
 }
 
 .stat-main span {
@@ -59,12 +90,11 @@ header {
 .stat-row {
     font-size: 0.85rem;
     color: #475569;
-    margin-top: 2px;
 }
 
 .ca-bar {
     margin-top: 10px;
-    height: 6px;
+    height: 8px;
     background: #e5e7eb;
     border-radius: 4px;
     overflow: hidden;
@@ -72,7 +102,7 @@ header {
 
 .ca-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 4px;
     transition: width .3s ease;
 }
 
@@ -82,87 +112,112 @@ header {
     cursor: pointer;
     color: #2563eb;
 }
-
-/* Vue Table */
-
-.tabs {
-    display: flex;
-    margin-top: 10px;
+.back:hover {
+    text-decoration: underline;
 }
 
-.tab {
-    padding: 10px 20px;
-    cursor: pointer;
-    background: #eee;
-    border-radius: 6px 6px 0 0;
-    margin-right: 5px;
-}
-
-.tab.active {
-    background: #fff;
-    font-weight: bold;
-    border-bottom: 3px solid #4CAF50;
-}
-
+/* === Tableau des risques === */
 .risk-table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
+    font-size: 0.95em;
 }
 
-.risk-table th {
-    vertical-align: bottom;
-    padding: 4px 6px;
+/* Header du tableau */
+.risk-table thead th {
+    background: #1E40AF;  /* Bleu foncé */
+    color: #fff;
+    font-weight: bold;
+    padding: 8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-.risk-table td {
-    padding: 10px;
+/* Bordures et cellules */
+.risk-table th, .risk-table td {
     border-bottom: 1px solid #ddd;
 }
 
-.risk-table tr:hover {
+/* Lignes alternées */
+.risk-table tbody tr:nth-child(even) {
     background: #f9f9f9;
 }
 
-.risk-table td.ca {
-    font-weight: bold;
+.risk-table tbody tr:nth-child(odd) {
+    background: #fff;
 }
 
+/* Hover sur lignes */
+.risk-table tbody tr:hover {
+    background: #e0e7ff;
+}
+
+/* Colonnes numériques alignées à droite */
+.risk-table td:nth-child(6),
+.risk-table td:nth-child(7),
+.risk-table td:nth-child(8),
+.risk-table td:nth-child(9) {
+    text-align: right;
+    padding: 6px 8px;
+}
+
+/* Contrôles Top N */
 .risk-controls {
     margin-bottom: 10px;
     font-weight: bold;
 }
 
+.risk-controls select {
+    padding: 4px 6px;
+    font-size: 0.9em;
+    border-radius: 4px;
+}
+
+/* Sup pour tri multiple */
 th.sortable sup {
     font-size: 10px;
     margin-left: 2px;
     color: #555;
 }
 
+/* === Filtres === */
 .filter-input, .filter-op {
-    height: 32px;            /* Hauteur uniforme pour toutes les zones */
-    font-size: 0.95em;       /* Police plus lisible */
-    padding: 4px 6px;
+    height: 36px;            /* Hauteur uniforme */
+    font-size: 0.95em;
+    padding: 4px 8px;
     box-sizing: border-box;
     border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
-/* Container pour les filtres numériques (select + input) */
-.filter-numeric {
-    display: flex;
-    gap: 4px;
-    align-items: stretch;    /* Étire le select et l'input sur la même hauteur */
-}
-
-/* Sélecteur d'opérateur */
-.filter-op {
-    width: 60px;             /* Taille fixe pour le select */
-    flex-shrink: 0;          /* Ne pas réduire */
+    border-radius: 4px;
     background: #fff;
 }
 
-/* Grid responsive */
+.filter-input::placeholder {
+    color: #999;
+}
+
+/* Container pour input + select numérique */
+.filter-numeric {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}
+
+.filter-op {
+    width: 60px;
+    flex-shrink: 0;
+    background: #f3f4f6;
+    border: 1px solid #ccc;
+}
+
+/* Input texte plein largeur */
+.filter-input {
+    flex: 1;
+}
+
+/* === Grid responsive === */
 @media (min-width: 768px) {
     #app {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
