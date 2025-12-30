@@ -309,7 +309,7 @@ function updateFilterValue(key, value) { columnFilters[key].value = value; debou
 function renderTableHeader() {
     return `
     <thead>
-        <tr>
+        <tr class="risk-table-header">
             ${riskColumns.map(col => {
                 const idx = riskSort.findIndex(s => s.key === col.key);
                 const active = idx !== -1;
@@ -318,8 +318,7 @@ function renderTableHeader() {
 
                 return `
                     <th class="sortable ${active ? 'active' : ''}">
-                        <div class="col-title"
-                             onclick="setRiskSort('${col.key}', event)">
+                        <div class="col-title" onclick="setRiskSort('${col.key}', event)">
                             ${col.label} ${arrow} ${order}
                         </div>
                         <div class="col-filter">
@@ -329,7 +328,45 @@ function renderTableHeader() {
                 `;
             }).join('')}
         </tr>
-    </thead>`;
+    </thead>
+
+    <style>
+        /* Ligne d'en-tête */
+        .risk-table thead .risk-table-header th {
+            vertical-align: bottom; /* aligne les filtres sous le titre */
+            padding: 12px 6px;
+        }
+
+        /* Bandeau avec fond léger et bordure */
+        .risk-table thead .risk-table-header {
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .risk-table thead .col-title {
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .risk-table thead .col-filter {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .risk-table thead .col-filter input,
+        .risk-table thead .col-filter select {
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 13px;
+            padding: 2px 4px;
+        }
+    </style>
+    `;
 }
 
 // Génère l'input de filtre selon le type de colonne
@@ -400,7 +437,7 @@ function renderRisksTable() {
     // Top N
     const limits = [5,10,15,30].filter(v => v < total);
     const controlsTopHtml = `
-        <div class="risk-controls">
+        <div class="risk-controls" style="margin-bottom: 16px;">
             <label>
                 Top
                 <select onchange="setRiskLimit(this.value)">
@@ -439,6 +476,7 @@ function renderRisksTable() {
         </tbody>
     `;
 
+    table.style.marginTop = "15px";
     risksView.appendChild(table);
 }
 
@@ -503,9 +541,9 @@ function buildStructuredData() {
  * UI Cascade
  *************************************************/
 
-function heatColor(value, min = 0, max = 100) { // ajusté selon %CA
+function heatColor(value, min = 0, max = 100) { 
     const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    const hue = 0 + (120 * (1 - ratio)); // 0 = rouge, 120 = vert
+    const hue = 240 * (1 - ratio); // 240 = bleu, 0 = rouge
     return `hsl(${hue}, 90%, ${50 - ratio*20}%)`;
 }
 
