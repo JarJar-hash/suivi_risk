@@ -39,7 +39,8 @@ async function loadAllRiskCSVs() {
 
     // Structure + Stats
     buildStructuredData();
-    renderSports();
+    autoDrillDown();
+
 
 }
 
@@ -314,10 +315,12 @@ function renderTableHeader() {
                 const order = active && riskSort.length > 1 ? `<sup>${idx+1}</sup>` : '';
                 return `
                     <th class="sortable ${active ? 'active' : ''}">
-                        <div onclick="setRiskSort('${col.key}', event)">
+                        <div class="col-title" onclick="setRiskSort('${col.key}', event)">
                             ${col.label} ${arrow} ${order}
                         </div>
-                        ${renderFilterInput(col.key)}
+                        <div class="col-filter">
+                            ${renderFilterInput(col.key)}
+                        </div>
                     </th>
                 `;
             }).join('')}
@@ -586,6 +589,42 @@ function renderPronos(sport, competition, event, mkt) {
     Object.entries(mktNode.children).forEach(([prono, pronoNode]) => {
         renderNode(prono, pronoNode, 4, null, null, true);
     });
+}
+
+function autoDrillDown() {
+    const sports = Object.keys(structuredData);
+
+    if (sports.length === 1) {
+        const sport = sports[0];
+        const competitions = Object.keys(structuredData[sport].children);
+
+        if (competitions.length === 1) {
+            const comp = competitions[0];
+            const events = Object.keys(structuredData[sport].children[comp].children);
+
+            if (events.length === 1) {
+                const evt = events[0];
+                const markets = Object.keys(structuredData[sport].children[comp].children[evt].children);
+
+                if (markets.length === 1) {
+                    const mkt = markets[0];
+                    renderPronos(sport, comp, evt, mkt);
+
+                }
+
+                renderMarkets(sport, comp, evt);
+                return;
+            }
+
+            renderEvents(sport, comp);
+            return;
+        }
+
+        renderCompetitions(sport);
+        return;
+    }
+
+    renderSports();
 }
 
 /*************************************************
