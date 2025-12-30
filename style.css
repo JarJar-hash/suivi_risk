@@ -16,7 +16,11 @@
    --text-main: #0f172a;
    --text-soft: #475569;
    --text-header: #2c3e50;
-   
+
+   --ca-low: #475569;
+   --ca-mid: #1e3a8a;
+   --ca-high: #7f1d1d;
+
    --border-soft: #e5e7eb;
    
    /* Dimensions */
@@ -267,6 +271,22 @@ body {
     text-align: center;
     font-weight: 700;
     color: #ffffff;
+}
+
+/* Ligne CA */
+
+.ca-low {
+    color: #475569;
+}
+
+.ca-mid {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+.ca-high {
+    color: #7f1d1d;
+    font-weight: 700;
 }
 
 /* ========================
