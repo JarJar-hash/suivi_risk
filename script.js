@@ -45,6 +45,50 @@ async function loadAllRiskCSVs() {
 }
 
 /*************************************************
+ * Fonctions Utilitaires
+ *************************************************/
+
+function safeDivide(numerator, denominator, decimals = 2) {
+    if (!numerator || !denominator) return 0;
+    const result = numerator / denominator;
+    return parseFloat(result.toFixed(decimals));
+}
+
+function median(arr) {
+    const sorted = arr.slice().sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0
+        ? sorted[mid]
+        : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function CleanNumber(content) {
+    return Number(content.toString().replace(",", ".").replace(" ", "").replace("%", ""))
+}
+
+function formatEuro(value) {
+    return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 0
+    }).format(value);
+}
+
+function caClass(value) {
+    if (value >= 15_000) return 'ca-high';
+    if (value >= 7_000) return 'ca-mid';
+    return 'ca-low';
+}
+
+function heatColor(value, min = 0, max = 100) {
+    const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
+    const hue = 120 * (1 - ratio); // 120° = vert, 0° = rouge
+    const saturation = 60;         // saturation modérée
+    const lightness = 25 + ratio * 10; // 25% (vert foncé) → 35% (rouge foncé)
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+/*************************************************
  * Parser CSV simple
  *************************************************/
 function parseAndAppendCSV(csvText) {
@@ -103,42 +147,9 @@ function addCalculatedColumn(raw_data, coteColIndex) {
     console.log("COMP_DATA:", comp_data);
 }
 
-// Fonction utilitaire pour médiane
-function median(arr) {
-    const sorted = arr.slice().sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0
-        ? sorted[mid]
-        : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
 /*************************************************
  * Filtrage
  *************************************************/
-
-/**
- * Divise deux nombres et retourne un résultat arrondi
- * @param {number} numerator - Numérateur
- * @param {number} denominator - Dénominateur
- * @param {number} decimals - Nombre de chiffres après la virgule
- * @returns {number} - Résultat de la division ou 0 si numérateur ou dénominateur est 0
- */
-
-function safeDivide(numerator, denominator, decimals = 2) {
-    if (!numerator || !denominator) return 0;
-    const result = numerator / denominator;
-    return parseFloat(result.toFixed(decimals));
-}
-
-/**
- * Supprime espaces + %
- * @param {any} content - Contenu variable
- * @returns {number} - Résultat de la transformation
- */
-
-function CleanNumber(content) {
-    return Number(content.toString().replace(",", ".").replace(" ", "").replace("%", ""))
-}
 
 function applyFilter() {
     
@@ -280,6 +291,15 @@ function updateFilter(key, value) { columnFilters[key] = value; debouncedRender(
 function updateFilterOperator(key, op) { columnFilters[key].op = op; debouncedRender(); }
 function updateFilterValue(key, value) { columnFilters[key].value = value; debouncedRender(); }
 
+/***************** LOGIQUE DE TOP N ****************/
+
+let riskLimit = 10;
+
+function setRiskLimit(value) {
+    riskLimit = Number(value);
+    renderRisksTable();
+}
+
 
 /***************** Construction du Tableau ****************/
 
@@ -332,47 +352,9 @@ function renderTableHeader() {
             }).join('')}
         </tr>
     </thead>
-
-    <style>
-        /* Ligne d'en-tête */
-        .risk-table thead .risk-table-header th {
-            vertical-align: bottom; /* aligne les filtres sous le titre */
-            padding: 12px 6px;
-        }
-
-        /* Bandeau avec fond léger et bordure */
-        .risk-table thead .risk-table-header {
-            background-color: #f9f9f9;
-            border-bottom: 2px solid #ccc;
-        }
-
-        .risk-table thead .col-title {
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .risk-table thead .col-filter {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .risk-table thead .col-filter input,
-        .risk-table thead .col-filter select {
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 13px;
-            padding: 2px 4px;
-        }
-    </style>
     `;
 }
 
-// Génère l'input de filtre selon le type de colonne
 function renderFilterInput(key) {
     if (['sport','competition','event','market','prono'].includes(key)) {
         return `
@@ -401,20 +383,12 @@ function renderFilterInput(key) {
     `;
 }
 
-let riskLimit = 10;
-
-function setRiskLimit(value) {
-    riskLimit = Number(value);
-    renderRisksTable();
-}
-
 function renderRisksTable() {
     
     risksView.innerHTML = '';
     const table = document.createElement('table');
     table.className = 'risk-table';
 
-    // Transformation des données
     let rows = filter_data.map(row => ({
         riskIntegrity: CleanNumber(CleanNumber(row[14]) / 10, decimals = 1),
         sport: row[1],
@@ -428,16 +402,13 @@ function renderRisksTable() {
         concSingle: CleanNumber(row[14])
     }));
 
-    // Appliquer filtres
     rows = applyColumnFilters(rows);
 
-    // Trier
     rows = sortRisks(rows);
 
     const total = rows.length;
     if (riskLimit > 0) rows = rows.slice(0, riskLimit);
 
-    // Top N
     const limits = [5,10,15,30].filter(v => v < total);
     const controlsTopHtml = `
         <div class="risk-controls" style="margin-bottom: 16px;">
@@ -455,31 +426,31 @@ function renderRisksTable() {
 
     risksView.innerHTML = controlsTopHtml;
 
-    // ===== TABLE =====
-
     table.innerHTML = `
         ${renderTableHeader()}
         <tbody>
             ${rows.map(r => `
                 <tr>
-                    <td style="background:${heatColor(r.riskIntegrity * 10, 0, 10)}; text-align:center; font-weight:bold; color:white">
+                    <td class="risk-cell"
+                        style="background:${heatColor(r.riskIntegrity * 10, 0, 10)}>
                         ${r.riskIntegrity.toFixed(1)}
                     </td>
                     <td>${r.sport}</td>
                     <td>${r.competition}</td>
                     <td>${r.event}</td>
                     <td>${r.market}</td>
-                    <td><strong>${r.prono}</strong></td>
-                    <td>${Math.round(r.ca)}</td>
+                    <td>${r.prono}</td>
+                    <td>class="${caClass(r.ca)}">${formatEuro(r.ca)}</td>
                     <td>${r.cote}</td>
-                    <td>${r.conc.toFixed(0)}%</td>
-                    <td>${r.concSingle.toFixed(0)}%</td>
+                    <td>${r.conc.toFixed(0)} %</td>
+                    <td>${r.concSingle.toFixed(0)} %</td>
                 </tr>
             `).join('')}
         </tbody>
     `;
 
-    table.style.marginTop = "15px";
+    table.classList.add('risk-table--spaced');
+    
     risksView.appendChild(table);
 }
 
@@ -488,9 +459,9 @@ function renderRisksTable() {
  *************************************************/
 
 function buildStructuredData() {
+    
     structuredData = {};
 
-    // Organiser les lignes par sport/comp/event/mkt/prono
     filter_data.forEach(row => {
         const sport = row[1];
         const competition = row[2];
@@ -523,7 +494,6 @@ function buildStructuredData() {
         pronoNode.rows.push({ca, conc, ca_single, cote});
     });
 
-    // Calculer les stats pour chaque node
     function computeNodeStats(node, totalParentCA = null) {
         const totalCA = node.rows.reduce((sum,r) => sum+r.ca,0);
         const count = node.rows.length;
@@ -544,22 +514,14 @@ function buildStructuredData() {
  * UI Cascade
  *************************************************/
 
-function heatColor(value, min = 0, max = 100) {
-    const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    const hue = 120 * (1 - ratio); // 120° = vert, 0° = rouge
-    const saturation = 60;         // saturation modérée
-    const lightness = 25 + ratio * 10; // 25% (vert foncé) → 35% (rouge foncé)
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-}
-
 function renderNode(title, node, level, parentOnClick = null, childOnClick = null, isProno = false) {
     
     const card = document.createElement('div');
     card.className = 'card';
     const heat = heatColor(node.stats.concentrationSingle);
 
-    card.style.borderLeft = `8px solid ${heat}`;
-    card.style.background = `linear-gradient(135deg, rgba(255,255,255,1), ${heat}15)`;
+    card.style.setProperty('--card-heat', `${heat}15`);
+    card.style.borderLeftColor = heat;
 
     let count, label;
     const levelLabels = {
@@ -600,7 +562,6 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
 
     card.innerHTML = `<h2>${title}</h2>${statHtml}`;
 
-    // Si clic parent, exécute-le
     if (parentOnClick) card.onclick = parentOnClick;
     else if (childOnClick) card.onclick = childOnClick;
 
@@ -611,7 +572,6 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
  * UI - Each Level
  *************************************************/
 
-// Render sports (niveau racine)
 function renderSports() {
     cardsView.innerHTML = '';
     Object.entries(structuredData).forEach(([sport, sportNode]) => {
@@ -619,7 +579,6 @@ function renderSports() {
     });
 }
 
-// Render compétitions pour un sport
 function renderCompetitions(sport) {
     const sportNode = structuredData[sport];
     cardsView.innerHTML = `<div class="back" onclick="renderSports()">← Retour</div>`;
@@ -628,7 +587,6 @@ function renderCompetitions(sport) {
     });
 }
 
-// Render événements pour une compétition
 function renderEvents(sport, competition) {
     const compNode = structuredData[sport].children[competition];
     cardsView.innerHTML = `<div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>`;
@@ -637,7 +595,6 @@ function renderEvents(sport, competition) {
     });
 }
 
-// Render markets pour un événement
 function renderMarkets(sport, competition, event) {
     const eventNode = structuredData[sport].children[competition].children[event];
     cardsView.innerHTML = `<div class="back" onclick="renderEvents('${sport}','${competition}')">← Retour</div>`;
@@ -646,7 +603,6 @@ function renderMarkets(sport, competition, event) {
     });
 }
 
-// Render pronos pour un market
 function renderPronos(sport, competition, event, mkt) {
     const mktNode = structuredData[sport].children[competition].children[event].children[mkt];
     cardsView.innerHTML = `<div class="back" onclick="renderMarkets('${sport}','${competition}','${event}')">← Retour</div>`;
