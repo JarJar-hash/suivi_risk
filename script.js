@@ -515,10 +515,15 @@ function buildStructuredData() {
  *************************************************/
 
 function renderNode(title, node, level, parentOnClick = null, childOnClick = null, isProno = false) {
+
+    const container = document.getElementById('cardsContainer');
     const card = document.createElement('div');
     card.className = 'card';
 
     const heat = heatColor(node.stats.concentrationSingle);
+
+    // Utilisation des variables CSS pour la barre et la bordure
+    card.style.setProperty('--card-heat', `${heat}15`);
     card.style.borderLeftColor = heat;
 
     let count, label;
@@ -539,6 +544,7 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
         }
     }
 
+    // Stats HTML
     const statHtml = `
         <div class="card-stats">
             <div class="stat-main">
@@ -560,91 +566,68 @@ function renderNode(title, node, level, parentOnClick = null, childOnClick = nul
     if (parentOnClick) card.onclick = parentOnClick;
     else if (childOnClick) card.onclick = childOnClick;
 
-    return card;
+    container.appendChild(card);
 }
+
 
 
 /*************************************************
  * UI - Each Level
  *************************************************/
 
-function initCardsGrid() {
-    cardsView.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.id = 'cardsGrid';
-    cardsView.appendChild(grid);
-    return grid;
-}
-
-// SPORTS
 function renderSports() {
-    const grid = initCardsGrid();
+    const cardsView = document.getElementById('cardsView');
+    cardsView.innerHTML = `<div id="cardsContainer"></div>`;
     Object.entries(structuredData).forEach(([sport, sportNode]) => {
-        grid.appendChild(renderNode(sport, sportNode, 0, null, () => renderCompetitions(sport)));
+        renderNode(sport, sportNode, 0, null, () => renderCompetitions(sport));
     });
 }
 
-// COMPETITIONS
 function renderCompetitions(sport) {
-    const grid = initCardsGrid();
+    const cardsView = document.getElementById('cardsView');
+    cardsView.innerHTML = `
+        <div class="back" onclick="renderSports()">← Retour</div>
+        <div id="cardsContainer"></div>
+    `;
     const sportNode = structuredData[sport];
-
-    const back = document.createElement('div');
-    back.className = 'back';
-    back.textContent = '← Retour';
-    back.onclick = renderSports;
-    grid.appendChild(back);
-
     Object.entries(sportNode.children).forEach(([competition, compNode]) => {
-        grid.appendChild(renderNode(competition, compNode, 1, null, () => renderEvents(sport, competition)));
+        renderNode(competition, compNode, 1, null, () => renderEvents(sport, competition));
     });
 }
 
-// EVENTS
 function renderEvents(sport, competition) {
-    const grid = initCardsGrid();
-    const eventNode = structuredData[sport].children[competition];
-
-    const back = document.createElement('div');
-    back.className = 'back';
-    back.textContent = '← Retour';
-    back.onclick = () => renderCompetitions(sport);
-    grid.appendChild(back);
-
-    Object.entries(eventNode.children).forEach(([event, evtNode]) => {
-        grid.appendChild(renderNode(event, evtNode, 2, null, () => renderMarkets(sport, competition, event)));
+    const cardsView = document.getElementById('cardsView');
+    cardsView.innerHTML = `
+        <div class="back" onclick="renderCompetitions('${sport}')">← Retour</div>
+        <div id="cardsContainer"></div>
+    `;
+    const compNode = structuredData[sport].children[competition];
+    Object.entries(compNode.children).forEach(([event, eventNode]) => {
+        renderNode(event, eventNode, 2, null, () => renderMarkets(sport, competition, event));
     });
 }
 
-// MARKETS
 function renderMarkets(sport, competition, event) {
-    const grid = initCardsGrid();
-    const marketNode = structuredData[sport].children[competition].children[event];
-
-    const back = document.createElement('div');
-    back.className = 'back';
-    back.textContent = '← Retour';
-    back.onclick = () => renderEvents(sport, competition);
-    grid.appendChild(back);
-
-    Object.entries(marketNode.children).forEach(([market, mkNode]) => {
-        grid.appendChild(renderNode(market, mkNode, 3, null, () => renderPronos(sport, competition, event, market)));
+    const cardsView = document.getElementById('cardsView');
+    cardsView.innerHTML = `
+        <div class="back" onclick="renderEvents('${sport}', '${competition}')">← Retour</div>
+        <div id="cardsContainer"></div>
+    `;
+    const eventNode = structuredData[sport].children[competition].children[event];
+    Object.entries(eventNode.children).forEach(([market, marketNode]) => {
+        renderNode(market, marketNode, 3, null, () => renderPronos(sport, competition, event, market));
     });
 }
 
-// PRONOS
 function renderPronos(sport, competition, event, market) {
-    const grid = initCardsGrid();
-    const pronoNode = structuredData[sport].children[competition].children[event].children[market];
-
-    const back = document.createElement('div');
-    back.className = 'back';
-    back.textContent = '← Retour';
-    back.onclick = () => renderMarkets(sport, competition, event);
-    grid.appendChild(back);
-
-    Object.entries(pronoNode.children).forEach(([prono, pNode]) => {
-        grid.appendChild(renderNode(prono, pNode, 4, null, null, true));
+    const cardsView = document.getElementById('cardsView');
+    cardsView.innerHTML = `
+        <div class="back" onclick="renderMarkets('${sport}', '${competition}', '${event}')">← Retour</div>
+        <div id="cardsContainer"></div>
+    `;
+    const marketNode = structuredData[sport].children[competition].children[event].children[market];
+    Object.entries(marketNode.children).forEach(([prono, pronoNode]) => {
+        renderNode(prono, pronoNode, 4, null, null, true);
     });
 }
 
