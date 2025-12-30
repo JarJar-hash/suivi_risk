@@ -418,7 +418,7 @@ function renderRisksTable() {
         ${renderTableHeader()}
         <tbody>
             ${rows.map(r => `
-                <tr style="border-left:32px solid ${heatColor(r.concSingle)}">
+                <tr style="border-left: var(--risk-bar-width) solid ${heatColor(r.concSingle)}">
                     <td>${r.sport}</td>
                     <td>${r.competition}</td>
                     <td>${r.event}</td>
