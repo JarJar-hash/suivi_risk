@@ -245,6 +245,7 @@ function sortRisks(rows) {
 }
 
 const riskColumns = [
+    { key: 'riskIntegrity', label: 'Risque Integrite' },
     { key: 'sport', label: 'Sport' },
     { key: 'competition', label: 'Competition' },
     { key: 'event', label: 'Event' },
@@ -374,6 +375,7 @@ function renderRisksTable() {
 
     // Transformation des données
     let rows = filter_data.map(row => ({
+        riskIntegrity: CleanNumber(concSingle / 10, decimals = 1),
         sport: row[1],
         competition: row[2],
         event: row[3],
@@ -418,7 +420,10 @@ function renderRisksTable() {
         ${renderTableHeader()}
         <tbody>
             ${rows.map(r => `
-                <tr style="border-left: var(--risk-bar-width) solid ${heatColor(r.concSingle)}">
+                <tr>
+                    <td style="background:${heatColor(r.riskIntegrity * 10, 0, 10)}; text-align:center; font-weight:bold; color:white">
+                        ${r.riskIntegrity.toFixed(1)}
+                    </td>
                     <td>${r.sport}</td>
                     <td>${r.competition}</td>
                     <td>${r.event}</td>
