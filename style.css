@@ -3,37 +3,38 @@
 ========================================================= */
 :root {
     /* Couleurs */
-    --bg-page: #f4f6f8;
-    --bg-card: #ffffff;
-    --bg-soft: #f1f5f9;
-    --bg-soft-2: #f8fafc;
-
-    --blue-main: #00265a;
-    --blue-mid: #1e4fa1;
-    --blue-active: #2AA1EB;
-
-    --text-main: #0f172a;
-    --text-soft: #475569;
-    --text-header: #2c3e50;
-
-    --border-soft: #e5e7eb;
-
-    /* Dimensions */
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-
-    --control-height: 2.2rem;
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 24px;
-
-    /* Typo */
-    --fs-xs: clamp(0.7rem, 0.75vw, 0.8rem);
-    --fs-sm: clamp(0.8rem, 0.85vw, 0.9rem);
-    --fs-md: clamp(0.9rem, 1vw, 1.05rem);
-    --fs-lg: clamp(1rem, 1.2vw, 1.15rem);
+   --bg-page: #f4f6f8;
+   --bg-card: #ffffff;
+   --bg-soft: #f1f5f9;
+   --bg-soft-2: #f8fafc;
+   --bg-soft-warn: #e2e8f0;
+   
+   --blue-main: #00265a;
+   --blue-mid: #1e4fa1;
+   --blue-active: #2AA1EB;
+   
+   --text-main: #0f172a;
+   --text-soft: #475569;
+   --text-header: #2c3e50;
+   
+   --border-soft: #e5e7eb;
+   
+   /* Dimensions */
+   --radius-sm: 6px;
+   --radius-md: 10px;
+   --radius-lg: 14px;
+   
+   --control-height: 2.2rem;
+   --space-xs: 4px;
+   --space-sm: 8px;
+   --space-md: 16px;
+   --space-lg: 24px;
+   
+   /* Typo */
+   --fs-xs: clamp(0.7rem, 0.75vw, 0.8rem);
+   --fs-sm: clamp(0.8rem, 0.85vw, 0.9rem);
+   --fs-md: clamp(0.9rem, 1vw, 1.05rem);
+   --fs-lg: clamp(1rem, 1.2vw, 1.15rem);
 }
 
 /* =========================================================
@@ -149,7 +150,7 @@ body {
 .risk-controls {
     font-weight: 600;
     color: var(--text-header);
-    background: var(--bg-soft);
+    background: var(--bg-soft-warn);
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-lg);
     border-radius: var(--radius-sm);
@@ -213,7 +214,7 @@ body {
 
 .filter-op {
     width: 2.4rem;
-    background: #e2e8f0;
+    background: var(--bg-soft-warn);
     font-weight: 700;
     text-align: center;
 }
