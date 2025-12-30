@@ -322,62 +322,6 @@ function renderRisksTable() {
 }
 
 
-function renderRisksTable() {
-    risksView.innerHTML = '';
-
-    // Transformer les lignes
-    const rows = filter_data.map(row => ({
-        sport: row[1],
-        competition: row[2],
-        event: row[3],
-        market: row[4],
-        prono: row[5],
-        cote: row[7],
-        ca: CleanNumber(row[8]),
-        conc : CleanNumber(row[9]),
-        concSingle: CleanNumber(row[14])
-    }));
-
-    // Trier par CA décroissant
-    rows.sort((a, b) => b.ca - a.ca);
-
-    const table = document.createElement('table');
-    table.className = 'risk-table';
-
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Sport</th>
-                <th>Event</th>
-                <th>Market</th>
-                <th>Prono</th>
-                <th>CA (€)</th>
-                <th>Cote</th>
-                <th>% CA</th>
-                <th>% Single</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${rows.map(r => `
-                <tr style="border-left:6px solid ${heatColor(r.concSingle)}">
-                    <td>${r.sport}</td>
-                    <td>${r.event}</td>
-                    <td>${r.market}</td>
-                    <td><strong>${r.prono}</strong></td>
-                    <td class="ca">${Math.round(r.ca)}</td>
-                    <td>${r.cote}</td>
-                    <td>${r.conc.toFixed(0)}%</td>
-                    <td class="heat" style="color:${heatColor(r.concSingle)}">
-                        ${r.concSingle.toFixed(0)}%
-                    </td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-
-    risksView.appendChild(table);
-}
-
 /*************************************************
  * Vue cascade - Structuration
  *************************************************/
