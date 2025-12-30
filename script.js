@@ -163,21 +163,32 @@ function applyFilter() {
 const cardsView = document.getElementById('cardsView');
 const risksView = document.getElementById('risksView');
 
-function showView(view) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+// Gestion navigation header
+document.querySelectorAll('.ps-header-nav a').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
 
-    if (view === 'cards') {
-        cardsView.style.display = 'block';
-        risksView.style.display = 'none';
-        document.querySelector('.tab:nth-child(1)').classList.add('active');
-        renderSports();
-    } else {
-        cardsView.style.display = 'none';
-        risksView.style.display = 'block';
-        document.querySelector('.tab:nth-child(2)').classList.add('active');
-        renderRisksTable();
-    }
-}
+        const view = link.dataset.view;
+
+        document
+            .querySelectorAll('.ps-header-nav a')
+            .forEach(a => a.classList.remove('active'));
+
+        link.classList.add('active');
+
+        if (view === 'cards') {
+            cardsView.style.display = 'block';
+            risksView.style.display = 'none';
+            renderSports();
+        }
+
+        if (view === 'risks') {
+            cardsView.style.display = 'none';
+            risksView.style.display = 'block';
+            renderRisksTable();
+        }
+    });
+});
 
 /*************************************************
  * Vue Tableau
