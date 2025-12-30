@@ -276,4 +276,27 @@ body {
     .filter-input {
         width: 90px;
     }
+
+    .risk-controls {
+        margin-bottom: 24px; /* plus d’espace sur petits écrans */
+    }
+
+    .risk-table thead th {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .risk-table thead .col-title {
+        margin-bottom: 4px;
+    }
+
+    .risk-table thead .col-filter {
+        width: 100%;
+    }
+
+    .risk-table thead input.filter-input,
+    .risk-table thead select.filter-op {
+        width: 100%;
+    }
 }
