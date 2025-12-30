@@ -312,10 +312,12 @@ function renderTableHeader() {
                 const idx = riskSort.findIndex(s => s.key === col.key);
                 const active = idx !== -1;
                 const arrow = active ? (riskSort[idx].direction === 'asc' ? '▲' : '▼') : '';
-                const order = active && riskSort.length > 1 ? `<sup>${idx+1}</sup>` : '';
+                const order = active && riskSort.length > 1 ? `<sup>${idx + 1}</sup>` : '';
+
                 return `
                     <th class="sortable ${active ? 'active' : ''}">
-                        <div class="col-title" onclick="setRiskSort('${col.key}', event)">
+                        <div class="col-title"
+                             onclick="setRiskSort('${col.key}', event)">
                             ${col.label} ${arrow} ${order}
                         </div>
                         <div class="col-filter">
@@ -331,22 +333,31 @@ function renderTableHeader() {
 // Génère l'input de filtre selon le type de colonne
 function renderFilterInput(key) {
     if (['sport','competition','event','market','prono'].includes(key)) {
-        return `<input type="text" class="filter-input" placeholder="Filtrer..." value="${columnFilters[key]}" 
-                       oninput="updateFilter('${key}', this.value)">`;
-    } else {
         return `
-            <div class="filter-numeric">
-                <select class="filter-op" onchange="updateFilterOperator('${key}', this.value)">
-                    <option value=">=" ${columnFilters[key].op === '>=' ? 'selected':''}>&ge;</option>
-                    <option value="<=" ${columnFilters[key].op === '<=' ? 'selected':''}>&le;</option>
-                </select>
-                <input type="number" class="filter-input" value="${columnFilters[key].value}" 
-                       oninput="updateFilterValue('${key}', this.value)" placeholder="Valeur">
-            </div>
+            <input type="text"
+                   class="filter-input"
+                   placeholder="Filtrer..."
+                   value="${columnFilters[key]}"
+                   oninput="updateFilter('${key}', this.value)">
         `;
     }
-}
 
+    return `
+        <div class="filter-numeric">
+            <input type="number"
+                   class="filter-input"
+                   placeholder="Valeur"
+                   value="${columnFilters[key].value}"
+                   oninput="updateFilterValue('${key}', this.value)">
+
+            <select class="filter-op"
+                    onchange="updateFilterOperator('${key}', this.value)">
+                <option value=">=" ${columnFilters[key].op === '>=' ? 'selected':''}>&ge;</option>
+                <option value="<=" ${columnFilters[key].op === '<=' ? 'selected':''}>&le;</option>
+            </select>
+        </div>
+    `;
+}
 
 let riskLimit = 10;
 
@@ -356,6 +367,7 @@ function setRiskLimit(value) {
 }
 
 function renderRisksTable() {
+    
     risksView.innerHTML = '';
     const table = document.createElement('table');
     table.className = 'risk-table';
@@ -382,9 +394,9 @@ function renderRisksTable() {
     const total = rows.length;
     if (riskLimit > 0) rows = rows.slice(0, riskLimit);
 
-    // Sélect Top N
+    // Top N
     const limits = [5,10,15,30].filter(v => v < total);
-    const controls = `
+    const controlsTopHtml = `
         <div class="risk-controls">
             <label>
                 Top
@@ -393,17 +405,20 @@ function renderRisksTable() {
                     ${limits.map(v => `<option value="${v}" ${riskLimit===v?'selected':''}>${v}</option>`).join('')}
                     <option value="${total}" ${riskLimit===total?'selected':''}>${total}</option>
                 </select>
-                // risks
+                risques
             </label>
         </div>
     `;
 
+    risksView.innerHTML = controlsTopHtml;
+
+    // ===== TABLE =====
+
     table.innerHTML = `
-        ${controls}
         ${renderTableHeader()}
         <tbody>
             ${rows.map(r => `
-                <tr style="border-left:6px solid ${heatColor(r.concSingle)}">
+                <tr style="border-left:16px solid ${heatColor(r.concSingle)}">
                     <td>${r.sport}</td>
                     <td>${r.competition}</td>
                     <td>${r.event}</td>
