@@ -317,7 +317,7 @@ function renderTableHeader() {
 // Génère l'input de filtre selon le type de colonne
 function renderFilterInput(key) {
     if (['sport','competition','event','market','prono'].includes(key)) {
-        return `<input type="text" placeholder="Filtrer..." value="${columnFilters[key]}" 
+        return `<input type="text" class="filter-input" placeholder="Filtrer..." value="${columnFilters[key]}" 
                        oninput="updateFilter('${key}', this.value)">`;
     } else {
         return `
@@ -332,6 +332,7 @@ function renderFilterInput(key) {
         `;
     }
 }
+
 
 let riskLimit = 10;
 
