@@ -286,24 +286,29 @@ function renderRisksTable() {
     }));
 
     rows = sortRisks(rows);
-
+    
+    const total = rows.length;
+    
     if (riskLimit > 0) {
         rows = rows.slice(0, riskLimit);
     }
-
-    const table = document.createElement('table');
-    table.className = 'risk-table';
-
+    
+    const limits = [10, 20, 50, 100].filter(v => v < total);
+    
     const controls = `
     <div class="risk-controls">
         <label>
             Top
             <select onchange="setRiskLimit(this.value)">
-                <option value="0">Tous</option>
-                <option value="10">10</option>
-                <option value="20" selected>20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="0" ${riskLimit === 0 ? 'selected' : ''}>Tous</option>
+                ${limits.map(v => `
+                    <option value="${v}" ${riskLimit === v ? 'selected' : ''}>
+                        ${v}
+                    </option>
+                `).join('')}
+                <option value="${total}" ${riskLimit === total ? 'selected' : ''}>
+                    ${total}
+                </option>
             </select>
             risks
         </label>
@@ -331,7 +336,6 @@ function renderRisksTable() {
 
     risksView.appendChild(table);
 }
-
 
 /*************************************************
  * Vue cascade - Structuration
