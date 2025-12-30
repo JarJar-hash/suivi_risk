@@ -432,7 +432,7 @@ function renderRisksTable() {
             ${rows.map(r => `
                 <tr>
                     <td class="risk-cell"
-                        style="background:${heatColor(r.riskIntegrity * 10, 0, 10)}>
+                        style="background:${heatColor(r.riskIntegrity * 10, 0, 10)}">
                         ${r.riskIntegrity.toFixed(1)}
                     </td>
                     <td>${r.sport}</td>
@@ -440,7 +440,7 @@ function renderRisksTable() {
                     <td>${r.event}</td>
                     <td>${r.market}</td>
                     <td>${r.prono}</td>
-                    <td>class="${caClass(r.ca)}">${formatEuro(r.ca)}</td>
+                    <td class="${caClass(r.ca)}">${formatEuro(r.ca)}</td>
                     <td>${r.cote}</td>
                     <td>${r.conc.toFixed(0)} %</td>
                     <td>${r.concSingle.toFixed(0)} %</td>
