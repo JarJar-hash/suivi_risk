@@ -98,8 +98,16 @@ body {
 /* =========================================================
    CARDS
 ========================================================= */
+
 #cardsView {
     padding: var(--space-md);
+}
+
+#cardsBack {
+    margin-bottom: var(--space-md);
+}
+
+#cardsGrid {
     display: grid;
     gap: var(--space-lg);
 }
@@ -144,6 +152,19 @@ body {
 .stat-row {
     font-size: var(--fs-xs);
     color: var(--text-soft);
+}
+
+.ca-bar {
+    margin-top: var(--space-sm);
+    height: 8px;
+    background: var(--border-soft);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.ca-bar-fill {
+    height: 100%;
+    transition: width .3s ease;
 }
 
 /* =========================================================
