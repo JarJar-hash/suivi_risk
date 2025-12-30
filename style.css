@@ -10,13 +10,14 @@ header {
     color: white;
 }
 
-#app {
+/* Cards */
+
+#cardsView {
     padding: 16px;
     display: grid;
     gap: 16px;
 }
 
-/* Cards */
 .card {
     background: linear-gradient(135deg, #ffffff, #f9fafb);
     border-radius: 14px;
@@ -75,16 +76,57 @@ header {
     transition: width .3s ease;
 }
 
-/* Grid responsive */
-@media (min-width: 768px) {
-    #app {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-}
-
 /* Back button */
 .back {
     margin-bottom: 16px;
     cursor: pointer;
     color: #2563eb;
+}
+
+/* Vue Table */
+
+.tabs {
+    display: flex;
+    margin-top: 10px;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #eee;
+    border-radius: 6px 6px 0 0;
+    margin-right: 5px;
+}
+
+.tab.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 3px solid #4CAF50;
+}
+
+.risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.risk-table th,
+.risk-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.risk-table tr:hover {
+    background: #f9f9f9;
+}
+
+.risk-table td.ca {
+    font-weight: bold;
+}
+
+/* Grid responsive */
+@media (min-width: 768px) {
+    #app {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
 }
