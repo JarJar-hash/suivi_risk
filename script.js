@@ -315,6 +315,9 @@ function renderRisksTable() {
     </div>
     `;
 
+    const table = document.createElement('table');
+    table.className = 'risk-table';
+
     table.innerHTML = `
         ${controls}
         ${renderTableHeader()}
