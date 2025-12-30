@@ -101,11 +101,13 @@ body {
 }
 
 .card {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    transition: transform .15s, box-shadow .15s;
+   background: linear-gradient(135deg, #fff, var(--card-heat, #fff));
+   border-radius: var(--radius-lg);
+   border-left-width: 8px;
+   border-left-style: solid;
+   padding: var(--space-md);
+   box-shadow: 0 6px 18px rgba(0,0,0,.08);
+   transition: transform .15s, box-shadow .15s;
 }
 
 .card:hover {
@@ -143,10 +145,14 @@ body {
 /* =========================================================
    TABLEAU
 ========================================================= */
+
 #risksView {
     padding: var(--space-md) var(--space-lg);
 }
 
+/* ========================
+   CONTROLS (TOP N)
+======================== */
 .risk-controls {
     font-weight: 600;
     color: var(--text-header);
@@ -156,6 +162,9 @@ body {
     border-radius: var(--radius-sm);
 }
 
+/* ========================
+   TABLE STRUCTURE
+======================== */
 .risk-table {
     width: 100%;
     border-collapse: collapse;
@@ -168,9 +177,21 @@ body {
     font-size: var(--fs-sm);
 }
 
+.risk-table--spaced {
+    margin-top: var(--space-md);
+}
+
+/* ========================
+   TABLE HEADER (ex-JS)
+======================== */
 .risk-table thead {
     background: linear-gradient(90deg, #00265a, #0b3c8a, #1e4fa1);
     box-shadow: inset 0 -12px 0 var(--bg-page);
+}
+
+.risk-table thead tr.risk-table-header {
+    background: var(--bg-soft);
+    border-bottom: 2px solid var(--border-soft);
 }
 
 .risk-table thead th {
@@ -178,25 +199,35 @@ body {
     top: 0;
     z-index: 5;
     vertical-align: bottom;
+    text-align: left;
     color: var(--text-header);
 }
 
+/* ========================
+   COLUMN TITLES
+======================== */
 .col-title {
     font-size: var(--fs-xs);
     font-weight: 700;
     margin-bottom: var(--space-xs);
     cursor: pointer;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* =========================================================
-   FILTRES
-========================================================= */
+/* ========================
+   FILTER ZONES
+======================== */
 .col-filter,
 .filter-numeric {
     display: flex;
     gap: var(--space-xs);
+    align-items: center;
 }
 
+/* Inputs communs */
 .filter-input,
 .filter-op {
     height: var(--control-height);
@@ -204,14 +235,17 @@ body {
     border: 1px solid #cbd5e1;
     border-radius: var(--radius-sm);
     color: var(--text-header);
+    box-sizing: border-box;
 }
 
+/* Champ principal */
 .filter-input {
     padding: 0 0.6em;
     background: var(--bg-soft-2);
     width: min(12rem, 100%);
 }
 
+/* Opérateur */
 .filter-op {
     width: 2.4rem;
     background: var(--bg-soft-warn);
@@ -219,13 +253,25 @@ body {
     text-align: center;
 }
 
-/* =========================================================
-   LIGNES
-========================================================= */
+/* ========================
+   BODY CELLS
+======================== */
 .risk-table td {
     border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+    font-variant-numeric: tabular-nums;
 }
 
+/* Ligne risque (heatmap) */
+.risk-cell {
+    text-align: center;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* ========================
+   ROW STATES
+======================== */
 .risk-table tbody tr:nth-child(even) {
     background: #f9fafb;
 }
@@ -250,6 +296,7 @@ body {
     .risk-table thead th {
         display: flex;
         flex-direction: column;
+        align-items: stretch;
     }
 
     .filter-input {
