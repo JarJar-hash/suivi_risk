@@ -230,6 +230,17 @@ function sortRisks(rows) {
     });
 }
 
+const riskColumns = [
+    { key: 'sport', label: 'Sport' },
+    { key: 'event', label: 'Event' },
+    { key: 'market', label: 'Market' },
+    { key: 'prono', label: 'Prono' },
+    { key: 'ca', label: 'CA (€)' },
+    { key: 'cote', label: 'Cote' },
+    { key: 'conc', label: '% CA' },
+    { key: 'concSingle', label: '% Single' }
+];
+
 function renderTableHeader() {
     return `
     <thead>
