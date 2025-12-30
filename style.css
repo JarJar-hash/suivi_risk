@@ -148,20 +148,13 @@ body {
    TABLEAU – FDJ PRO
 ========================================================= */
 
-:root {
-    --risk-bar-width: 50px;
-}
-
 #risksView {
-    padding: 0;
+    padding: 16px 24px;
     width: 100%;
 }
 
 /* TOP N */
 .risk-controls {
-   padding-left: calc(8px + var(--risk-bar-width));
-   padding-top: 6px;
-   padding-bottom: 6px;
    font-weight: 600;
    color: #00265a;
    background: #f1f5f9;
@@ -173,7 +166,6 @@ body {
    border-collapse: collapse;
    margin: 0;
    background: #ffffff;
-   padding-left: var(--risk-bar-width);
 }
 
 /* EN-TÊTE – FULL WIDTH */
@@ -191,9 +183,6 @@ body {
 .risk-table thead th {
    color: #ffffff;
    font-weight: 700;
-   padding-top: 12px;
-   padding-bottom: 18px;
-   padding-left: calc(8px + var(--risk-bar-width));
    text-align: left;
    vertical-align: bottom;
    position: sticky;
@@ -214,9 +203,12 @@ body {
     justify-content: flex-start;
 }
 
+.risk-table th, .risk-table td {
+    padding: 6px 12px;
+}
+
 /* CELLULES */
 .risk-table td {
-   padding: 6px 8px 6px calc(8px + var(--risk-bar-width));
    font-size: 0.85rem;
    border-bottom: 1px solid #e5e7eb;
    text-align: left;
