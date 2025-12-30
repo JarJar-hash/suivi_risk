@@ -10,10 +10,18 @@
 <body>
 
 <header>
-    <h1>📊 Suivi du risque</h1>
+    <h1>Monitoring PDV: Sports Betting Risks</h1>
+
+    <nav class="tabs">
+        <div class="tab active" onclick="showView('cards')">📊 Cards</div>
+        <div class="tab" onclick="showView('risks')">⚠️ Risks</div>
+    </nav>
 </header>
 
-<main id="app"></main>
+<main>
+    <div id="cardsView"></div>
+    <div id="risksView" style="display:none"></div>
+</main>
 
 <script src="script.js"></script>
 </body>
