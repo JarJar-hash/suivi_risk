@@ -541,10 +541,12 @@ function buildStructuredData() {
  * UI Cascade
  *************************************************/
 
-function heatColor(value, min = 0, max = 100) { 
+function heatColor(value, min = 0, max = 100) {
     const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
-    const hue = 240 * (1 - ratio); // 240 = bleu, 0 = rouge
-    return `hsl(${hue}, 90%, ${50 - ratio*20}%)`;
+    const hue = 120 * (1 - ratio); // 120° = vert, 0° = rouge
+    const saturation = 60;         // saturation modérée
+    const lightness = 25 + ratio * 10; // 25% (vert foncé) → 35% (rouge foncé)
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 function renderNode(title, node, level, parentOnClick = null, childOnClick = null, isProno = false) {
