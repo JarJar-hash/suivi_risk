@@ -149,7 +149,7 @@ body {
 ========================================================= */
 
 :root {
-    --risk-bar-width: 14px;
+    --risk-bar-width: 50px;
 }
 
 #risksView {
@@ -159,8 +159,9 @@ body {
 
 /* TOP N */
 .risk-controls {
-   padding: 10px 16px;
-   padding-left: calc(16px + var(--risk-bar-width));
+   padding-left: calc(8px + var(--risk-bar-width));
+   padding-top: 6px;
+   padding-bottom: 6px;
    font-weight: 600;
    color: #00265a;
    background: #f1f5f9;
@@ -184,22 +185,20 @@ body {
         #1e4fa1 100%
     );
 
-   box-shadow: inset 0 -6px 0 #f4f6f8;
-}
-
-.risk-table thead th:first-child {
-    padding-left: calc(8px + var(--risk-bar-width));
+   box-shadow: inset 0 -10px 0 #f4f6f8;
 }
 
 .risk-table thead th {
-    color: #ffffff;
-    font-weight: 700;
-    padding: 6px 8px 8px;
-    text-align: left;
-    vertical-align: bottom;
-    position: sticky;
-    top: 0;
-    z-index: 5;
+   color: #ffffff;
+   font-weight: 700;
+   padding-top: 12px;
+   padding-bottom: 18px;
+   padding-left: calc(8px + var(--risk-bar-width));
+   text-align: left;
+   vertical-align: bottom;
+   position: sticky;
+   top: 0;
+   z-index: 5;
 }
 
 /* TITRES COLONNES */
@@ -217,11 +216,11 @@ body {
 
 /* CELLULES */
 .risk-table td {
-    padding: 6px 8px;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-    font-variant-numeric: tabular-nums;
+   padding: 6px 8px 6px calc(8px + var(--risk-bar-width));
+   font-size: 0.85rem;
+   border-bottom: 1px solid #e5e7eb;
+   text-align: left;
+   font-variant-numeric: tabular-nums;
 }
 
 /* LIGNES */
