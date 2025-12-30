@@ -183,6 +183,145 @@ function showView(view) {
  * Vue Tableau
  *************************************************/
 
+let riskSort = [
+    { key: 'ca', direction: 'desc' } // tri par défaut
+];
+
+function setRiskSort(key, event) {
+    const isShift = event.shiftKey;
+    const existing = riskSort.find(s => s.key === key);
+
+    if (!isShift) {
+        // Reset tri
+        if (existing) {
+            existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
+            riskSort = [existing];
+        } else {
+            riskSort = [{ key, direction: 'desc' }];
+        }
+    } else {
+        // Multi-tri
+        if (existing) {
+            existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            riskSort.push({ key, direction: 'desc' });
+        }
+    }
+
+    renderRisksTable();
+}
+
+function sortRisks(rows) {
+    return rows.sort((a, b) => {
+        for (const { key, direction } of riskSort) {
+            let v1 = a[key];
+            let v2 = b[key];
+
+            if (typeof v1 === 'string') {
+                const res = v1.localeCompare(v2);
+                if (res !== 0) return direction === 'asc' ? res : -res;
+            } else {
+                if (v1 !== v2) {
+                    return direction === 'asc' ? v1 - v2 : v2 - v1;
+                }
+            }
+        }
+        return 0;
+    });
+}
+
+function renderTableHeader() {
+    return `
+    <thead>
+        <tr>
+            ${riskColumns.map(col => {
+                const idx = riskSort.findIndex(s => s.key === col.key);
+                const active = idx !== -1;
+                const arrow = active
+                    ? (riskSort[idx].direction === 'asc' ? '▲' : '▼')
+                    : '';
+                const order = active && riskSort.length > 1 ? `<sup>${idx + 1}</sup>` : '';
+
+                return `
+                    <th class="sortable ${active ? 'active' : ''}"
+                        onclick="setRiskSort('${col.key}', event)">
+                        ${col.label} ${arrow} ${order}
+                    </th>
+                `;
+            }).join('')}
+        </tr>
+    </thead>`;
+}
+
+let riskLimit = 20;
+
+function setRiskLimit(value) {
+    riskLimit = Number(value);
+    renderRisksTable();
+}
+
+function renderRisksTable() {
+    risksView.innerHTML = '';
+
+    let rows = filter_data.map(row => ({
+        sport: row[1],
+        event: row[3],
+        market: row[4],
+        prono: row[5],
+        cote: CleanNumber(row[7]),
+        ca: CleanNumber(row[8]),
+        conc: CleanNumber(row[9]),
+        concSingle: CleanNumber(row[14])
+    }));
+
+    rows = sortRisks(rows);
+
+    if (riskLimit > 0) {
+        rows = rows.slice(0, riskLimit);
+    }
+
+    const table = document.createElement('table');
+    table.className = 'risk-table';
+
+    const controls = `
+    <div class="risk-controls">
+        <label>
+            Top
+            <select onchange="setRiskLimit(this.value)">
+                <option value="0">Tous</option>
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            risks
+        </label>
+    </div>
+    `;
+
+    table.innerHTML = `
+        ${controls}
+        ${renderTableHeader()}
+        <tbody>
+            ${rows.map(r => `
+                <tr style="border-left:6px solid ${heatColor(r.concSingle)}">
+                    <td>${r.sport}</td>
+                    <td>${r.event}</td>
+                    <td>${r.market}</td>
+                    <td><strong>${r.prono}</strong></td>
+                    <td>${Math.round(r.ca)}</td>
+                    <td>${r.cote}</td>
+                    <td>${r.conc.toFixed(0)}%</td>
+                    <td>${r.concSingle.toFixed(0)}%</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    risksView.appendChild(table);
+}
+
+
 function renderRisksTable() {
     risksView.innerHTML = '';
 
