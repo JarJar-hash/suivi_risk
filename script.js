@@ -268,6 +268,7 @@ function debounce(func, delay = 600) {
 }
 
 let columnFilters = {
+    riskIntegrity: { op: '>=', value: '' },
     sport: '',
     competition: '',
     event: '',
@@ -287,7 +288,7 @@ function applyColumnFilters(rows) {
             if (val && !r[key].toLowerCase().includes(val)) return false;
         }
         // Filtres numériques
-        for (const key of ['ca', 'cote', 'conc', 'concSingle']) {
+        for (const key of ['riskIntegrity', 'ca', 'cote', 'conc', 'concSingle']) {
             const { op, value } = columnFilters[key];
             if (value !== '') {
                 const numValue = parseFloat(value);
