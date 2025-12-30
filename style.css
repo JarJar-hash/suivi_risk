@@ -124,6 +124,17 @@ header {
     font-weight: bold;
 }
 
+.risk-controls {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+th.sortable sup {
+    font-size: 10px;
+    margin-left: 2px;
+    color: #555;
+}
+
 /* Grid responsive */
 @media (min-width: 768px) {
     #app {
