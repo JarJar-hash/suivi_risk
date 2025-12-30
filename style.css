@@ -11,6 +11,7 @@ body {
 /* =========================================================
    HEADER – ParionsSport style
 ========================================================= */
+
 .ps-header {
     position: sticky;
     top: 0;
@@ -18,18 +19,29 @@ body {
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
 
+    width: 100%;
     padding: 10px 24px;
 
     background: linear-gradient(
         90deg,
         #00265a 0%,
-        #0b3c8a 45%,
+        #0b3c8a 50%,
         #1e4fa1 100%
     );
 
     box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.ps-header-left {
+    display: flex;
+    align-items: center;
+    margin-right: 24px;
+}
+
+.ps-header-nav {
+    display: flex;
+    gap: 16px;
 }
 
 /* Logo */
@@ -37,12 +49,6 @@ body {
     height: 48px;
     width: auto;
     display: block;
-}
-
-/* Navigation */
-.ps-header-nav {
-    display: flex;
-    gap: 18px;
 }
 
 .ps-header-nav a {
@@ -62,8 +68,8 @@ body {
 }
 
 .ps-header-nav a.active {
-    background: #ffcc00;
-    color: #00265a;
+    background: #2AA1EB;
+    color: #ffffff;
 }
 
 /* =========================================================
@@ -97,7 +103,7 @@ body {
 #cardsView {
     padding: 16px;
     display: grid;
-    gap: 18px;
+    gap: 22px;
 }
 
 .card {
@@ -134,7 +140,7 @@ body {
 }
 
 .stat-main span {
-    color: #ffcc00;
+    color: #165078;
 }
 
 .stat-row {
@@ -170,11 +176,16 @@ body {
 /* =========================================================
    TABLEAU – esprit outil FDJ
 ========================================================= */
+
+#risksView {
+    padding-left: 0;
+}
+
 .risk-table {
     width: 100%;
     border-collapse: collapse;
     background: #ffffff;
-    font-size: 0.92rem;
+    margin-left: 0;
 }
 
 /* En-tête tableau */
@@ -182,18 +193,33 @@ body {
     background: #00265a;
     color: #ffffff;
     font-weight: 700;
-    padding: 10px 8px;
-    text-align: left;
+    padding: 6px 6px 8px;
+    text-align: center;
+    vertical-align: bottom;
     position: sticky;
     top: 0;
     z-index: 5;
-    border-bottom: 3px solid #ffcc00;
+}
+
+.col-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.col-filter {
+    display: flex;
+    justify-content: center;
 }
 
 /* Cellules */
+.risk-table th,
 .risk-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #e5e7eb;
+   padding: 6px 6px;
+   font-size: 0.85rem;
+   border-bottom: 1px solid #e5e7eb;
 }
 
 /* Lignes alternées */
@@ -219,12 +245,16 @@ body {
 ========================================================= */
 .filter-input,
 .filter-op {
-    height: 36px;
-    font-size: 0.9rem;
+    height: 32px;
+    font-size: 0.8rem;
     padding: 4px 8px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     box-sizing: border-box;
+    width: 58px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #00265a;
 }
 
 .filter-input::placeholder {
@@ -235,13 +265,6 @@ body {
     display: flex;
     gap: 6px;
     align-items: stretch;
-}
-
-.filter-op {
-    width: 58px;
-    font-weight: 700;
-    background: #f1f5f9;
-    color: #00265a;
 }
 
 /* =========================================================
