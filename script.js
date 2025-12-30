@@ -264,7 +264,7 @@ function renderTableHeader() {
     </thead>`;
 }
 
-let riskLimit = 20;
+let riskLimit = 10;
 
 function setRiskLimit(value) {
     riskLimit = Number(value);
@@ -293,7 +293,7 @@ function renderRisksTable() {
         rows = rows.slice(0, riskLimit);
     }
     
-    const limits = [10, 20, 50, 100].filter(v => v < total);
+    const limits = [5, 10, 15, 30].filter(v => v < total);
     
     const controls = `
     <div class="risk-controls">
